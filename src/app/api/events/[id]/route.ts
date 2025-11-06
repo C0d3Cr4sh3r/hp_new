@@ -4,10 +4,11 @@ import { DatabaseService } from '../../../../../lib/supabase'
 // PUT /api/events/[id] - Update specific event
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid event ID' },
@@ -30,10 +31,11 @@ export async function PUT(
 // DELETE /api/events/[id] - Delete specific event
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id)
+    const { id: idParam } = await params
+    const id = parseInt(idParam)
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid event ID' },
