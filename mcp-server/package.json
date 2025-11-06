@@ -1,0 +1,26 @@
+{
+  "name": "nextjs-project-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for Next.js project management and analysis",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mcp",
+    "nextjs",
+    "model-context-protocol"
+  ],
+  "author": "C0d3Cr4sh3r",
+  "license": "MIT",
+  "bin": {
+    "nextjs-project-mcp-server": "index.js"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@modelcontextprotocol/sdk": "^1.21.0"
+  }
+}

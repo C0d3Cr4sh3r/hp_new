@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "nextjs-project": {
+      "command": "node",
+      "args": ["./mcp-server/index.js"],
+      "cwd": ".",
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
