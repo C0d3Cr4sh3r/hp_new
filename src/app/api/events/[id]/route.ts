@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DatabaseService } from '../../../../../lib/supabase'
+import { DatabaseService } from '@/lib/supabase'
 
 // PUT /api/events/[id] - Update specific event
 export async function PUT(

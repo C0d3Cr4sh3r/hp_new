@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { Hero } from '@/components/Hero';
 import { Features } from '@/components/Features';
 import { ArcanePixelsSection } from '@/components/ArcanePixelsSection';
+import { EventHubSection } from '@/components/EventHubSection';
 import { About } from '@/components/About';
 import { Contact } from '@/components/Contact';
 
@@ -24,6 +25,7 @@ export default function Home() {
       <Hero />
       <Features />
       <ArcanePixelsSection />
+  <EventHubSection />
       <About />
       <Contact />
     </div>

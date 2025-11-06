@@ -1,12 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Create a single supabase client for interacting with your database
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-// Type definitions for database tables (based on PHP projects)
 export interface Event {
   id?: number
   title: string
@@ -46,7 +44,6 @@ export interface User {
   updated_at?: string
 }
 
-// Mock data für Demo-Zwecke
 const mockEvents: Event[] = [
   {
     id: 1,
@@ -56,7 +53,7 @@ const mockEvents: Event[] = [
     time: '14:00',
     location: 'Hamburg Speicherstadt',
     type: 'tfp',
-    status: 'confirmed'
+    status: 'confirmed',
   },
   {
     id: 2,
@@ -66,57 +63,49 @@ const mockEvents: Event[] = [
     time: '10:00',
     location: 'Berlin Mitte',
     type: 'paid',
-    status: 'planned'
-  }
+    status: 'planned',
+  },
 ]
 
-// Database operations
 export class DatabaseService {
-  // Events
   static async getEvents() {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .order('date', { ascending: true })
-      
+      const { data, error } = await supabase.from('events').select('*').order('date', { ascending: true })
+
       if (error) {
         console.warn('Supabase error, using mock data:', error)
         return mockEvents
       }
       return data as Event[]
     } catch (error) {
-      console.warn('Supabase not available, using mock data')
+      console.warn('Supabase not available, using mock data', error)
       return mockEvents
     }
   }
 
   static async createEvent(event: Omit<Event, 'id' | 'created_at' | 'updated_at'>) {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .insert([event])
-        .select()
-      
+      const { data, error } = await supabase.from('events').insert([event]).select()
+
       if (error) {
         console.warn('Supabase error, using mock creation:', error)
         const newEvent = {
           ...event,
           id: mockEvents.length + 1,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         }
         mockEvents.push(newEvent)
         return newEvent
       }
       return data[0] as Event
     } catch (error) {
-      console.warn('Supabase not available, using mock creation')
+      console.warn('Supabase not available, using mock creation', error)
       const newEvent = {
         ...event,
         id: mockEvents.length + 1,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
       mockEvents.push(newEvent)
       return newEvent
@@ -125,15 +114,11 @@ export class DatabaseService {
 
   static async updateEvent(id: number, updates: Partial<Event>) {
     try {
-      const { data, error } = await supabase
-        .from('events')
-        .update(updates)
-        .eq('id', id)
-        .select()
-      
+      const { data, error } = await supabase.from('events').update(updates).eq('id', id).select()
+
       if (error) {
         console.warn('Supabase error, using mock update:', error)
-        const eventIndex = mockEvents.findIndex(e => e.id === id)
+        const eventIndex = mockEvents.findIndex((e) => e.id === id)
         if (eventIndex >= 0) {
           mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
           return mockEvents[eventIndex]
@@ -142,8 +127,8 @@ export class DatabaseService {
       }
       return data[0] as Event
     } catch (error) {
-      console.warn('Supabase not available, using mock update')
-      const eventIndex = mockEvents.findIndex(e => e.id === id)
+      console.warn('Supabase not available, using mock update', error)
+      const eventIndex = mockEvents.findIndex((e) => e.id === id)
       if (eventIndex >= 0) {
         mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
         return mockEvents[eventIndex]
@@ -154,14 +139,11 @@ export class DatabaseService {
 
   static async deleteEvent(id: number) {
     try {
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', id)
-      
+      const { error } = await supabase.from('events').delete().eq('id', id)
+
       if (error) {
         console.warn('Supabase error, using mock deletion:', error)
-        const eventIndex = mockEvents.findIndex(e => e.id === id)
+        const eventIndex = mockEvents.findIndex((e) => e.id === id)
         if (eventIndex >= 0) {
           mockEvents.splice(eventIndex, 1)
           return true
@@ -170,8 +152,8 @@ export class DatabaseService {
       }
       return true
     } catch (error) {
-      console.warn('Supabase not available, using mock deletion')
-      const eventIndex = mockEvents.findIndex(e => e.id === id)
+      console.warn('Supabase not available, using mock deletion', error)
+      const eventIndex = mockEvents.findIndex((e) => e.id === id)
       if (eventIndex >= 0) {
         mockEvents.splice(eventIndex, 1)
         return true
@@ -180,97 +162,85 @@ export class DatabaseService {
     }
   }
 
-  // Projects
   static async getProjects() {
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .order('created_at', { ascending: false })
-      
+      const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
+
       if (error) {
         console.warn('Supabase error, returning empty projects:', error)
         return []
       }
       return data as Project[]
     } catch (error) {
-      console.warn('Supabase not available, returning empty projects')
+      console.warn('Supabase not available, returning empty projects', error)
       return []
     }
   }
 
   static async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) {
     try {
-      const { data, error } = await supabase
-        .from('projects')
-        .insert([project])
-        .select()
-      
+      const { data, error } = await supabase.from('projects').insert([project]).select()
+
       if (error) {
         console.warn('Supabase error, using mock project creation:', error)
         return {
           ...project,
           id: 1,
           created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         }
       }
       return data[0] as Project
     } catch (error) {
-      console.warn('Supabase not available, using mock project creation')
+      console.warn('Supabase not available, using mock project creation', error)
       return {
         ...project,
         id: 1,
         created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       }
     }
   }
 
-  // Users
   static async getUsers() {
     try {
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false })
-      
+
       if (error) {
         console.warn('Supabase error, returning empty users:', error)
         return []
       }
       return data as User[]
     } catch (error) {
-      console.warn('Supabase not available, returning empty users')
+      console.warn('Supabase not available, returning empty users', error)
       return []
     }
   }
 
   static async getUserById(id: string) {
     try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', id)
-        .single()
-      
+      const { data, error } = await supabase.from('user_profiles').select('*').eq('id', id).single()
+
       if (error) {
         console.warn('Supabase error, returning mock user:', error)
         return {
           id,
           email: 'demo@example.com',
           name: 'Demo User',
-          role: 'photographer' as const
+          role: 'photographer' as const,
         }
       }
       return data as User
     } catch (error) {
-      console.warn('Supabase not available, returning mock user')
+      console.warn('Supabase not available, returning mock user', error)
       return {
         id,
         email: 'demo@example.com',
         name: 'Demo User',
-        role: 'photographer' as const
+        role: 'photographer' as const,
       }
     }
   }

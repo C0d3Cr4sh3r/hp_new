@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { DatabaseService, Event } from '../../../../lib/supabase'
+import { DatabaseService } from '@/lib/supabase'
 
 // GET /api/events - Fetch all events
 export async function GET() {
