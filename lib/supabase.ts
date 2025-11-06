@@ -1,14 +1,10 @@
-// Conditional Supabase client für Build-Zeit
-let supabase: any = null
+import { createClient } from '@supabase/supabase-js'
 
-if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-  const { createClient } = require('@supabase/supabase-js')
-  
-  supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  )
-}
+// Create a single supabase client for interacting with your database
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
 // Type definitions for database tables (based on PHP projects)
 export interface Event {
@@ -74,21 +70,20 @@ const mockEvents: Event[] = [
   }
 ]
 
-// Database operations with fallback to mock data
+// Database operations
 export class DatabaseService {
   // Events
   static async getEvents() {
-    if (!supabase) {
-      return mockEvents
-    }
-    
     try {
       const { data, error } = await supabase
         .from('events')
         .select('*')
         .order('date', { ascending: true })
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, using mock data:', error)
+        return mockEvents
+      }
       return data as Event[]
     } catch (error) {
       console.warn('Supabase not available, using mock data')
@@ -97,24 +92,23 @@ export class DatabaseService {
   }
 
   static async createEvent(event: Omit<Event, 'id' | 'created_at' | 'updated_at'>) {
-    if (!supabase) {
-      const newEvent = {
-        ...event,
-        id: mockEvents.length + 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-      mockEvents.push(newEvent)
-      return newEvent
-    }
-
     try {
       const { data, error } = await supabase
         .from('events')
         .insert([event])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, using mock creation:', error)
+        const newEvent = {
+          ...event,
+          id: mockEvents.length + 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        mockEvents.push(newEvent)
+        return newEvent
+      }
       return data[0] as Event
     } catch (error) {
       console.warn('Supabase not available, using mock creation')
@@ -130,15 +124,6 @@ export class DatabaseService {
   }
 
   static async updateEvent(id: number, updates: Partial<Event>) {
-    if (!supabase) {
-      const eventIndex = mockEvents.findIndex(e => e.id === id)
-      if (eventIndex >= 0) {
-        mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
-        return mockEvents[eventIndex]
-      }
-      throw new Error('Event not found')
-    }
-
     try {
       const { data, error } = await supabase
         .from('events')
@@ -146,7 +131,15 @@ export class DatabaseService {
         .eq('id', id)
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, using mock update:', error)
+        const eventIndex = mockEvents.findIndex(e => e.id === id)
+        if (eventIndex >= 0) {
+          mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
+          return mockEvents[eventIndex]
+        }
+        throw new Error('Event not found')
+      }
       return data[0] as Event
     } catch (error) {
       console.warn('Supabase not available, using mock update')
@@ -160,22 +153,21 @@ export class DatabaseService {
   }
 
   static async deleteEvent(id: number) {
-    if (!supabase) {
-      const eventIndex = mockEvents.findIndex(e => e.id === id)
-      if (eventIndex >= 0) {
-        mockEvents.splice(eventIndex, 1)
-        return true
-      }
-      throw new Error('Event not found')
-    }
-
     try {
       const { error } = await supabase
         .from('events')
         .delete()
         .eq('id', id)
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, using mock deletion:', error)
+        const eventIndex = mockEvents.findIndex(e => e.id === id)
+        if (eventIndex >= 0) {
+          mockEvents.splice(eventIndex, 1)
+          return true
+        }
+        throw new Error('Event not found')
+      }
       return true
     } catch (error) {
       console.warn('Supabase not available, using mock deletion')
@@ -190,17 +182,16 @@ export class DatabaseService {
 
   // Projects
   static async getProjects() {
-    if (!supabase) {
-      return []
-    }
-
     try {
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, returning empty projects:', error)
+        return []
+      }
       return data as Project[]
     } catch (error) {
       console.warn('Supabase not available, returning empty projects')
@@ -209,22 +200,21 @@ export class DatabaseService {
   }
 
   static async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) {
-    if (!supabase) {
-      return {
-        ...project,
-        id: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      }
-    }
-
     try {
       const { data, error } = await supabase
         .from('projects')
         .insert([project])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, using mock project creation:', error)
+        return {
+          ...project,
+          id: 1,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      }
       return data[0] as Project
     } catch (error) {
       console.warn('Supabase not available, using mock project creation')
@@ -239,17 +229,16 @@ export class DatabaseService {
 
   // Users
   static async getUsers() {
-    if (!supabase) {
-      return []
-    }
-
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('user_profiles')
         .select('*')
         .order('created_at', { ascending: false })
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, returning empty users:', error)
+        return []
+      }
       return data as User[]
     } catch (error) {
       console.warn('Supabase not available, returning empty users')
@@ -258,23 +247,22 @@ export class DatabaseService {
   }
 
   static async getUserById(id: string) {
-    if (!supabase) {
-      return {
-        id,
-        email: 'demo@example.com',
-        name: 'Demo User',
-        role: 'photographer' as const
-      }
-    }
-
     try {
       const { data, error } = await supabase
-        .from('users')
+        .from('user_profiles')
         .select('*')
         .eq('id', id)
         .single()
       
-      if (error) throw error
+      if (error) {
+        console.warn('Supabase error, returning mock user:', error)
+        return {
+          id,
+          email: 'demo@example.com',
+          name: 'Demo User',
+          role: 'photographer' as const
+        }
+      }
       return data as User
     } catch (error) {
       console.warn('Supabase not available, returning mock user')
@@ -287,5 +275,3 @@ export class DatabaseService {
     }
   }
 }
-
-export { supabase }
