@@ -1,0 +1,19 @@
+# MCP Server
+node_modules/
+*.log
+.env
+.env.local
+.env.production
+dist/
+build/
+
+# VS Code
+.vscode/settings.json
+
+# Runtime
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
