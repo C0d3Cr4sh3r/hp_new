@@ -23,9 +23,20 @@ export function Navigation() {
     { name: 'Kontakt', href: '#contact', current: false },
   ];
 
+  const arcaneNavigation = [
+    { name: 'ArcanePixels', href: '/arcane', external: true },
+    { name: 'Events', href: '/arcane/events', external: true },
+    { name: 'Galerie', href: '/arcane/gallery', external: true },
+    { name: 'News', href: '/arcane/news', external: true },
+    { name: 'Bug Tracker', href: '/arcane/bugs', external: true },
+  ];
+
   const scrollToSection = (href: string) => {
     if (href === '#') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (href.startsWith('/')) {
+      // External link navigation
+      window.location.href = href;
     } else {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -66,6 +77,29 @@ export function Navigation() {
                   {item.name}
                 </button>
               ))}
+              
+              {/* ArcanePixels Dropdown */}
+              <div className="relative group">
+                <button className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200 flex items-center">
+                  ArcanePixels
+                  <svg className="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="py-1">
+                    {arcaneNavigation.map((item) => (
+                      <button
+                        key={item.name}
+                        onClick={() => scrollToSection(item.href)}
+                        className="block w-full text-left px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-900/20 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
+                      >
+                        {item.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -113,6 +147,23 @@ export function Navigation() {
                   {item.name}
                 </button>
               ))}
+              
+              {/* ArcanePixels Mobile Menu */}
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-2">
+                <div className="px-3 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                  ArcanePixels
+                </div>
+                {arcaneNavigation.map((item) => (
+                  <button
+                    key={item.name}
+                    onClick={() => scrollToSection(item.href)}
+                    className="block w-full text-left px-3 py-2 text-base font-medium text-slate-700 dark:text-slate-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors duration-200"
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+              
               <a
                 href="https://github.com/C0d3Cr4sh3r/hp_new"
                 target="_blank"

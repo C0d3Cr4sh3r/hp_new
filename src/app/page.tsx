@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { Hero } from '@/components/Hero';
 import { Features } from '@/components/Features';
+import { ArcanePixelsSection } from '@/components/ArcanePixelsSection';
 import { About } from '@/components/About';
 import { Contact } from '@/components/Contact';
 
@@ -22,6 +23,7 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-zinc-100 dark:from-slate-900 dark:to-zinc-900">
       <Hero />
       <Features />
+      <ArcanePixelsSection />
       <About />
       <Contact />
     </div>
