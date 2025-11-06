@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Event } from '../../../../lib/supabase'
+import { Event } from '../../../../../lib/supabase'
 import ArcaneNavigation from '@/components/arcane/ArcaneNavigation'
 
 export default function EventsPage() {
