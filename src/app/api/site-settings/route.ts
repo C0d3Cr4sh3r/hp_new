@@ -18,6 +18,28 @@ const sanitizeRequired = (value: unknown, fallback: string): string => {
   return trimmed.length === 0 ? fallback : trimmed
 }
 
+// Helper to handle errors and return appropriate response
+const handleApiError = (error: unknown): NextResponse => {
+  console.error('Site settings error:', error)
+  
+  // Check for configuration errors
+  if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+    return NextResponse.json(
+      { 
+        error: 'Supabase Konfigurationsfehler. Bitte SUPABASE_SERVICE_ROLE_KEY in .env.local setzen.',
+        details: error.message 
+      }, 
+      { status: 500 }
+    )
+  }
+  
+  // Generic error response
+  return NextResponse.json(
+    { error: 'Seiteneinstellungen konnten nicht verarbeitet werden.' }, 
+    { status: 500 }
+  )
+}
+
 export async function GET() {
   try {
     const supabase = getSupabaseAdminClient()
@@ -43,23 +65,7 @@ export async function GET() {
 
     return NextResponse.json(payload)
   } catch (error) {
-    console.error('Site settings could not be loaded:', error)
-    
-    // Check if this is a configuration error
-    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
-      return NextResponse.json(
-        { 
-          error: 'Supabase Konfigurationsfehler. Bitte SUPABASE_SERVICE_ROLE_KEY in .env.local setzen.',
-          details: error.message 
-        }, 
-        { status: 500 }
-      )
-    }
-    
-    return NextResponse.json(
-      { error: 'Seiteneinstellungen konnten nicht geladen werden.' }, 
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
 
@@ -108,22 +114,6 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(payload)
   } catch (error) {
-    console.error('Site settings could not be saved:', error)
-    
-    // Check if this is a configuration error
-    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
-      return NextResponse.json(
-        { 
-          error: 'Supabase Konfigurationsfehler. Bitte SUPABASE_SERVICE_ROLE_KEY in .env.local setzen.',
-          details: error.message 
-        }, 
-        { status: 500 }
-      )
-    }
-    
-    return NextResponse.json(
-      { error: 'Seiteneinstellungen konnten nicht gespeichert werden.' }, 
-      { status: 500 }
-    )
+    return handleApiError(error)
   }
 }
