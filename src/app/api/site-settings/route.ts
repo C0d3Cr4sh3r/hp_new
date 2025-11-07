@@ -28,6 +28,7 @@ export async function GET() {
       .maybeSingle()
 
     if (error) {
+      console.error('Database error loading site settings:', error)
       throw error
     }
 
@@ -43,7 +44,22 @@ export async function GET() {
     return NextResponse.json(payload)
   } catch (error) {
     console.error('Site settings could not be loaded:', error)
-    return NextResponse.json({ error: 'Seiteneinstellungen konnten nicht geladen werden.' }, { status: 500 })
+    
+    // Check if this is a configuration error
+    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+      return NextResponse.json(
+        { 
+          error: 'Supabase Konfigurationsfehler. Bitte SUPABASE_SERVICE_ROLE_KEY in .env.local setzen.',
+          details: error.message 
+        }, 
+        { status: 500 }
+      )
+    }
+    
+    return NextResponse.json(
+      { error: 'Seiteneinstellungen konnten nicht geladen werden.' }, 
+      { status: 500 }
+    )
   }
 }
 
@@ -81,6 +97,7 @@ export async function PUT(request: NextRequest) {
       .single()
 
     if (error || !data) {
+      console.error('Database error saving site settings:', error)
       throw error ?? new Error('Seiteneinstellungen konnten nicht gespeichert werden.')
     }
 
@@ -92,6 +109,21 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json(payload)
   } catch (error) {
     console.error('Site settings could not be saved:', error)
-    return NextResponse.json({ error: 'Seiteneinstellungen konnten nicht gespeichert werden.' }, { status: 500 })
+    
+    // Check if this is a configuration error
+    if (error instanceof Error && error.message.includes('SUPABASE_SERVICE_ROLE_KEY')) {
+      return NextResponse.json(
+        { 
+          error: 'Supabase Konfigurationsfehler. Bitte SUPABASE_SERVICE_ROLE_KEY in .env.local setzen.',
+          details: error.message 
+        }, 
+        { status: 500 }
+      )
+    }
+    
+    return NextResponse.json(
+      { error: 'Seiteneinstellungen konnten nicht gespeichert werden.' }, 
+      { status: 500 }
+    )
   }
 }

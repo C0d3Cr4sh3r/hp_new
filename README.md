@@ -26,12 +26,12 @@ npm run dev
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase Projekt-URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | öffentlicher Supabase Key |
-| `SUPABASE_SERVICE_ROLE_KEY` | optionaler Service-Key für mutierende API-Routen (empfohlen) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Erforderlich** für Admin-API-Routen (Downloads, News, Settings, etc.) |
 | `ADMIN_PASSWORD` | Passwort für den geschützten Admin-Bereich (wird nicht ins Frontend geleakt) |
 | `GEMINI_API_KEY` | Google Gemini API-Schlüssel (alternativ `GOOGLE_API_KEY`) |
 | `GEMINI_MODEL` | optionales Standardmodell, z. B. `gemini-2.5-flash` |
 
-> Tipp: Hinterlege die Gemini-, Supabase- und Admin-Passwort-Variablen lokal in `.env.local` sowie in Vercel/VPS Secrets.
+> **Wichtig**: `SUPABASE_SERVICE_ROLE_KEY` ist erforderlich für alle Admin-Operationen (Downloads, News, Site Settings, etc.). Ohne diesen Schlüssel schlagen API-Aufrufe mit einem 500 Fehler fehl. Den Service Role Key finden Sie in Ihrem Supabase Projekt unter Settings > API.
 
 ### Admin-Zugriff
 
@@ -64,7 +64,15 @@ npm run dev
 - Admin-Tab **Landing Content** (`src/components/admin/landing/LandingContentPanel.tsx`) verwaltet Texte, Bullet-Points, CTA-Link sowie das optimierte Hero-Bild.
 - Öffentliche Sektion (`src/components/arcane/ArcaneGallery.tsx`, Abschnitt `#shootinghub`) lädt Inhalte über `/api/shootinghub-section` und fällt bei fehlenden Daten auf `DEFAULT_SHOOTINGHUB_SECTION` zurück.
 
-> Hinweis: Für Schreibzugriffe wird `SUPABASE_SERVICE_ROLE_KEY` benötigt. RLS-Policies entsprechend konfigurieren, falls zusätzliche Sicherheit erforderlich ist.
+## Fehlerbehebung
+
+### Site Settings API 500 Fehler
+Wenn beim Laden oder Speichern der Site Settings ein 500 Fehler auftritt:
+1. Prüfen Sie, ob `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` gesetzt ist
+2. Der Service Role Key ist unter Supabase Dashboard > Settings > API zu finden
+3. Nach dem Setzen der Variable den Server neu starten: `npm run dev`
+
+Weitere Details siehe [SITE_SETTINGS_FIX.md](./SITE_SETTINGS_FIX.md)
 
 ## Tests & Linting
 
