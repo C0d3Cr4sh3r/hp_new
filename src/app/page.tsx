@@ -1,19 +1,16 @@
-import { Metadata } from 'next';
-import { Hero } from '@/components/Hero';
-import { Features } from '@/components/Features';
-import { ArcanePixelsSection } from '@/components/ArcanePixelsSection';
-import { EventHubSection } from '@/components/EventHubSection';
-import { About } from '@/components/About';
-import { Contact } from '@/components/Contact';
+import type { Metadata } from 'next';
+import { ArcaneLanding } from '@/components/arcane/ArcaneLanding';
 
 export const metadata: Metadata = {
-  title: 'HP New - Moderne Webentwicklung',
-  description: 'Professionelle Webentwicklung mit Next.js, TypeScript und modernen Technologien',
-  keywords: ['Webentwicklung', 'Next.js', 'TypeScript', 'React', 'Tailwind CSS'],
-  authors: [{ name: 'C0d3Cr4sh3r' }],
+  title: 'ArcanePixels - Web-Entwicklung für Fotografen',
+  description:
+    'ArcanePixels bietet maßgeschneiderte Web-Entwicklung für Fotografen und kreative Professionals. Entdecken Sie ShootingHub - die moderne App für Shooting-Management.',
+  keywords: ['ArcanePixels', 'Web-Entwicklung', 'Fotografen', 'ShootingHub', 'Portfolio', 'CMS'],
+  authors: [{ name: 'ArcanePixels' }],
   openGraph: {
-    title: 'HP New - Moderne Webentwicklung',
-    description: 'Professionelle Webentwicklung mit Next.js, TypeScript und modernen Technologien',
+    title: 'ArcanePixels - Web-Entwicklung für Fotografen',
+    description:
+      'Professionelle Web-Entwicklung für Fotografen und ShootingHub - die moderne App für Shooting-Management.',
     type: 'website',
     locale: 'de_DE',
   },
@@ -21,13 +18,10 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-zinc-100 dark:from-slate-900 dark:to-zinc-900">
-      <Hero />
-      <Features />
-      <ArcanePixelsSection />
-  <EventHubSection />
-      <About />
-      <Contact />
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+      <div className="container mx-auto px-4">
+        <ArcaneLanding />
+      </div>
     </div>
   );
 }

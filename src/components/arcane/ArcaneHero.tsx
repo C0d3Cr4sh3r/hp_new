@@ -16,7 +16,7 @@ export default function ArcaneHero() {
           </p>
           <p className="mt-4 text-lg text-purple-300 max-w-2xl mx-auto">
             Spezialisiert auf kreative Fotografie, TFP-Shootings und digitale Kunstwerke. 
-            Entdecke unsere innovative TFP-Manager App für professionelle Fotoshootings.
+            Entdecke unsere innovative ShootingHub App für professionelles Shooting-Management.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
@@ -26,10 +26,10 @@ export default function ArcaneHero() {
               Portfolio ansehen
             </Link>
             <Link
-              href="#tfp-manager"
+              href="#shootinghub"
               className="text-sm font-semibold leading-6 text-purple-300 hover:text-purple-100 transition-colors"
             >
-              TFP-Manager App <span aria-hidden="true">→</span>
+              ShootingHub App <span aria-hidden="true">→</span>
             </Link>
           </div>
         </div>

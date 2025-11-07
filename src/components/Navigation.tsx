@@ -24,11 +24,11 @@ export function Navigation() {
   ];
 
   const arcaneNavigation = [
-    { name: 'ArcanePixels', href: '/arcane', external: true },
-    { name: 'Events', href: '/arcane/events', external: true },
-    { name: 'Galerie', href: '/arcane/gallery', external: true },
+    { name: 'ArcanePixels', href: '/', external: true },
+    { name: 'Galerie', href: '/#screenshots', external: true },
     { name: 'News', href: '/arcane/news', external: true },
     { name: 'Bug Tracker', href: '/arcane/bugs', external: true },
+    { name: 'Admin', href: '/admin', external: true },
   ];
 
   const eventHubNavigation = [

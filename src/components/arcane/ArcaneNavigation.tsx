@@ -6,12 +6,14 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 const navigation = [
   { name: 'Home', href: '/' },
-  { name: 'Portfolio', href: '/arcane#portfolio' },
-  { name: 'TFP-Manager', href: '/arcane#tfp-manager' },
-  { name: 'Screenshots', href: '/arcane#screenshots' },
-  { name: 'Events', href: '/arcane/events' },
+  { name: 'Services', href: '/#services' },
+  { name: 'Portfolio', href: '/#portfolio' },
+  { name: 'ShootingHub', href: '/#shootinghub' },
   { name: 'News', href: '/arcane/news' },
+  { name: 'Downloads', href: '/arcane/downloads' },
   { name: 'Bug Tracker', href: '/arcane/bugs' },
+  { name: 'EventHub', href: '/eventhub' },
+  { name: 'Admin', href: '/admin' },
 ]
 
 export default function ArcaneNavigation() {
@@ -21,7 +23,7 @@ export default function ArcaneNavigation() {
     <header className="bg-black/90 backdrop-blur-sm border-b border-purple-500/20">
       <nav className="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div className="flex lg:flex-1">
-          <Link href="/arcane" className="-m-1.5 p-1.5">
+          <Link href="/" className="-m-1.5 p-1.5">
             <span className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               ArcanePixels
             </span>
@@ -54,7 +56,7 @@ export default function ArcaneNavigation() {
           <div className="fixed inset-0 z-50" />
           <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-black px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-purple-500/20">
             <div className="flex items-center justify-between">
-              <Link href="/arcane" className="-m-1.5 p-1.5">
+              <Link href="/" className="-m-1.5 p-1.5">
                 <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                   ArcanePixels
                 </span>
