@@ -6,6 +6,7 @@ import { mapRowToThemeSettings, THEME_SETTINGS_ID, THEME_SETTINGS_TABLE } from '
 import { DEFAULT_THEME_SETTINGS } from '@/lib/supabase'
 import { GlobalAIAssistantWrapper } from '@/components/admin/assistant/GlobalAIAssistantWrapper'
 import { SkipLinks } from '@/components/accessibility/SkipLinks'
+import { CookieConsent } from '@/components/CookieConsent'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -90,6 +91,7 @@ export default async function RootLayout({
       >
         <SkipLinks />
         {children}
+        <CookieConsent />
         <GlobalAIAssistantWrapper />
       </body>
     </html>
