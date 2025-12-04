@@ -96,8 +96,24 @@ async function saveSettings(request: NextRequest) {
     const servicesSectionTitle = sanitizeOptional(body?.servicesSectionTitle ?? body?.services_section_title)
     const servicesSectionDescription = sanitizeOptional(body?.servicesSectionDescription ?? body?.services_section_description)
 
-    // DEBUG: Log what we're about to save
-    const dataToSave = {
+    // Grid-Bereich Sichtbarkeit
+    const showHero = typeof body?.show_hero === 'boolean' ? body.show_hero : undefined
+    const showFeatures = typeof body?.show_features === 'boolean' ? body.show_features : undefined
+    const showGallery = typeof body?.show_gallery === 'boolean' ? body.show_gallery : undefined
+    const showServices = typeof body?.show_services === 'boolean' ? body.show_services : undefined
+    const showPortfolio = typeof body?.show_portfolio === 'boolean' ? body.show_portfolio : undefined
+    const showShootinghub = typeof body?.show_shootinghub === 'boolean' ? body.show_shootinghub : undefined
+
+    // Grid-Bereich Reihenfolge
+    const heroSortOrder = typeof body?.hero_sort_order === 'number' ? body.hero_sort_order : undefined
+    const featuresSortOrder = typeof body?.features_sort_order === 'number' ? body.features_sort_order : undefined
+    const gallerySortOrder = typeof body?.gallery_sort_order === 'number' ? body.gallery_sort_order : undefined
+    const servicesSortOrder = typeof body?.services_sort_order === 'number' ? body.services_sort_order : undefined
+    const portfolioSortOrder = typeof body?.portfolio_sort_order === 'number' ? body.portfolio_sort_order : undefined
+    const shootinghubSortOrder = typeof body?.shootinghub_sort_order === 'number' ? body.shootinghub_sort_order : undefined
+
+    // Baue das zu speichernde Objekt - nur definierte Felder inkludieren
+    const dataToSave: Record<string, unknown> = {
       id: SITE_SETTINGS_ID,
       site_name: siteName,
       tagline,
@@ -116,6 +132,22 @@ async function saveSettings(request: NextRequest) {
       services_section_description: servicesSectionDescription,
       updated_at: new Date().toISOString(),
     }
+
+    // Grid-Sichtbarkeit nur hinzufügen wenn definiert
+    if (showHero !== undefined) dataToSave.show_hero = showHero
+    if (showFeatures !== undefined) dataToSave.show_features = showFeatures
+    if (showGallery !== undefined) dataToSave.show_gallery = showGallery
+    if (showServices !== undefined) dataToSave.show_services = showServices
+    if (showPortfolio !== undefined) dataToSave.show_portfolio = showPortfolio
+    if (showShootinghub !== undefined) dataToSave.show_shootinghub = showShootinghub
+
+    // Grid-Reihenfolge nur hinzufügen wenn definiert
+    if (heroSortOrder !== undefined) dataToSave.hero_sort_order = heroSortOrder
+    if (featuresSortOrder !== undefined) dataToSave.features_sort_order = featuresSortOrder
+    if (gallerySortOrder !== undefined) dataToSave.gallery_sort_order = gallerySortOrder
+    if (servicesSortOrder !== undefined) dataToSave.services_sort_order = servicesSortOrder
+    if (portfolioSortOrder !== undefined) dataToSave.portfolio_sort_order = portfolioSortOrder
+    if (shootinghubSortOrder !== undefined) dataToSave.shootinghub_sort_order = shootinghubSortOrder
     console.log('=== DATA TO SAVE ===')
     console.log('hero_title:', dataToSave.hero_title)
     console.log('hero_subtitle:', dataToSave.hero_subtitle)
