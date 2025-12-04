@@ -2,8 +2,16 @@
 
 import React, { useState, useEffect } from 'react'
 import { CheckCircleIcon, ExclamationTriangleIcon, TrashIcon, PencilSquareIcon, PlusIcon } from '@heroicons/react/24/outline'
-import { Service } from '@/lib/supabase'
+import { DEFAULT_SERVICES_SECTION, Service, type ServicesSectionSettings } from '@/lib/supabase'
 import { handleAdminUnauthorized } from '@/components/admin/utils/handleUnauthorized'
+
+const SERVICE_SECTION_ENDPOINT = '/api/service-section'
+
+type ServiceSectionFormState = {
+  eyebrow: string
+  title: string
+  description: string
+}
 
 export default function ServicesAdminPanel() {
   const [services, setServices] = useState<Service[]>([])
@@ -13,8 +21,16 @@ export default function ServicesAdminPanel() {
   const [feedback, setFeedback] = useState<{ variant: 'success' | 'error'; message: string } | null>(null)
   const [isSaving, setIsSaving] = useState(false)
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [sectionForm, setSectionForm] = useState<ServiceSectionFormState>({
+    eyebrow: DEFAULT_SERVICES_SECTION.eyebrow ?? '',
+    title: DEFAULT_SERVICES_SECTION.title ?? '',
+    description: DEFAULT_SERVICES_SECTION.description ?? '',
+  })
+  const [sectionLoading, setSectionLoading] = useState(true)
+  const [sectionSaving, setSectionSaving] = useState(false)
 
   useEffect(() => {
+    loadServiceSection()
     loadServices()
   }, [])
 
@@ -45,6 +61,86 @@ export default function ServicesAdminPanel() {
       })
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const loadServiceSection = async () => {
+    try {
+      setSectionLoading(true)
+      const response = await fetch(SERVICE_SECTION_ENDPOINT, { cache: 'no-store' })
+      if (!response.ok) {
+        throw new Error('Service-Abschnitt konnte nicht geladen werden')
+      }
+      const data = (await response.json()) as ServicesSectionSettings
+      setSectionForm({
+        eyebrow: data.eyebrow ?? '',
+        title: data.title ?? '',
+        description: data.description ?? '',
+      })
+    } catch (error) {
+      console.error('Error loading service section:', error)
+      setFeedback({
+        variant: 'error',
+        message: 'Service-Abschnitt konnte nicht geladen werden',
+      })
+      setSectionForm({
+        eyebrow: DEFAULT_SERVICES_SECTION.eyebrow ?? '',
+        title: DEFAULT_SERVICES_SECTION.title ?? '',
+        description: DEFAULT_SERVICES_SECTION.description ?? '',
+      })
+    } finally {
+      setSectionLoading(false)
+    }
+  }
+
+  const updateSectionField = <Key extends keyof ServiceSectionFormState>(
+    field: Key,
+    value: ServiceSectionFormState[Key],
+  ) => {
+    setSectionForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleSaveSection = async () => {
+    try {
+      setSectionSaving(true)
+      const response = await fetch(SERVICE_SECTION_ENDPOINT, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eyebrow: sectionForm.eyebrow,
+          title: sectionForm.title,
+          description: sectionForm.description,
+        }),
+      })
+
+      if (handleAdminUnauthorized(response)) {
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error('Service-Abschnitt konnte nicht gespeichert werden')
+      }
+
+      const data = (await response.json()) as ServicesSectionSettings
+      setSectionForm({
+        eyebrow: data.eyebrow ?? '',
+        title: data.title ?? '',
+        description: data.description ?? '',
+      })
+
+      setFeedback({
+        variant: 'success',
+        message: 'Service-Abschnitt wurde aktualisiert',
+      })
+    } catch (error) {
+      console.error('Error saving service section:', error)
+      setFeedback({
+        variant: 'error',
+        message:
+          error instanceof Error ? error.message : 'Service-Abschnitt konnte nicht gespeichert werden',
+      })
+    } finally {
+      setSectionSaving(false)
     }
   }
 
@@ -190,6 +286,74 @@ export default function ServicesAdminPanel() {
           Neuer Service
         </button>
       </header>
+
+      <div className="rounded-2xl border border-purple-600/30 bg-purple-950/40 p-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-lg font-semibold text-white">Texte des Service-Abschnitts</h3>
+            <p className="text-sm text-purple-200">
+              Passe Eyebrow, Überschrift und Beschreibung an. Änderungen werden sofort auf der Startseite übernommen.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={loadServiceSection}
+              disabled={sectionLoading || sectionSaving}
+              className="inline-flex items-center gap-2 rounded-full border border-purple-500/40 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-purple-200 transition hover:border-purple-300 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              Neu laden
+            </button>
+            <button
+              type="button"
+              onClick={handleSaveSection}
+              disabled={sectionSaving || sectionLoading}
+              className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 px-5 py-2 text-sm font-semibold text-white shadow-lg transition hover:from-purple-500 hover:to-pink-400 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {sectionSaving ? 'Speichert...' : 'Änderungen sichern'}
+            </button>
+          </div>
+        </div>
+
+        {sectionLoading ? (
+          <div className="mt-6 rounded-xl border border-purple-500/30 bg-black/20 p-4 text-sm text-purple-200">
+            Service-Abschnitt wird geladen...
+          </div>
+        ) : (
+          <div className="mt-6 space-y-4">
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-widest text-purple-300">Eyebrow</label>
+              <input
+                type="text"
+                value={sectionForm.eyebrow}
+                onChange={(event) => updateSectionField('eyebrow', event.target.value)}
+                className="mt-2 w-full rounded-xl border border-purple-500/40 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-purple-300"
+                placeholder="Unsere Services"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-widest text-purple-300">Überschrift</label>
+              <input
+                type="text"
+                value={sectionForm.title}
+                onChange={(event) => updateSectionField('title', event.target.value)}
+                className="mt-2 w-full rounded-xl border border-purple-500/40 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-purple-300"
+                placeholder="Web-Entwicklung für kreative Professionals"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold uppercase tracking-widest text-purple-300">Beschreibung</label>
+              <textarea
+                value={sectionForm.description}
+                onChange={(event) => updateSectionField('description', event.target.value)}
+                rows={4}
+                className="mt-2 w-full rounded-xl border border-purple-500/40 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-purple-300"
+                placeholder="Kurzer Teasertext für den Service-Abschnitt"
+              />
+            </div>
+          </div>
+        )}
+      </div>
 
       {feedback && (
         <div

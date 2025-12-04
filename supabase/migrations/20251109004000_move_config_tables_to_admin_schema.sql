@@ -1,0 +1,2 @@
+-- Intentionally left blank.
+-- We decided to keep configuration tables in the public schema so that Supabase PostgREST can expose them without additional configuration.

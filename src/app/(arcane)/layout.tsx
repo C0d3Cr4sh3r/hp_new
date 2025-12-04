@@ -12,11 +12,8 @@ export default function ArcaneLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-      {/* ArcanePixels spezifisches Layout */}
-      <div className="container mx-auto px-4">
-        {children}
-      </div>
+    <div className="min-h-screen bg-theme-gradient">
+      {children}
     </div>
   )
 }

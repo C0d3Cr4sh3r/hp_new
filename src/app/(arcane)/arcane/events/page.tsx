@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Event } from '@/lib/supabase'
 import ArcaneNavigation from '@/components/arcane/ArcaneNavigation'
+import ArcaneFooter from '@/components/arcane/ArcaneFooter'
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([])
@@ -107,6 +108,7 @@ export default function EventsPage() {
           )}
         </div>
       </div>
+      <ArcaneFooter />
     </>
   )
 }

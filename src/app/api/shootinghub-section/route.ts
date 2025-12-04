@@ -88,7 +88,7 @@ export async function PUT(request: NextRequest) {
       updated_at: new Date().toISOString(),
     }
 
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .upsert(payload, { onConflict: 'section_key' })

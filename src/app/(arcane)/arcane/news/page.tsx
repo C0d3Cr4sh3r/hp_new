@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import ArcaneNavigation from '@/components/arcane/ArcaneNavigation'
+import ArcaneFooter from '@/components/arcane/ArcaneFooter'
 import type { NewsArticle } from '@/lib/supabase'
 
 type PublicNewsArticle = NewsArticle & { excerpt?: string }
@@ -57,9 +58,9 @@ export default function NewsPage() {
   return (
     <>
       <ArcaneNavigation />
-      <div className="max-w-4xl mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold text-white mb-4">ArcanePixels News</h1>
+          <h1 className="text-4xl font-bold text-white mb-4">News</h1>
           <p className="text-purple-200 text-lg">
             Aktuelle Updates und Neuigkeiten rund um unsere Apps und Services
           </p>
@@ -105,7 +106,8 @@ export default function NewsPage() {
             </button>
           </div>
         </div>
-      </div>
+      </main>
+      <ArcaneFooter />
     </>
   )
 }

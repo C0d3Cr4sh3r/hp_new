@@ -8,6 +8,7 @@ export const DEFAULT_ASSISTANT_SETTINGS: AssistantSettings = {
   temperature: 0.7,
   enableQuickActions: true,
   model: 'gemini-2.5-flash',
+  enableGlobalAssistant: false,
 }
 
 export const AVAILABLE_GEMINI_MODELS: Array<{ value: string; label: string; recommended?: boolean }> = [

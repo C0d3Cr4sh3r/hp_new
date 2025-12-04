@@ -69,7 +69,7 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: NextRequest) {
+async function saveSettings(request: NextRequest) {
   const authResponse = ensureAdminAccess(request)
   if (authResponse) {
     return authResponse
@@ -77,30 +77,60 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json()
+    console.log('Site settings save - received body:', JSON.stringify(body, null, 2))
 
-    const siteName = sanitizeRequired(body?.siteName, DEFAULT_SITE_SETTINGS.site_name)
+    // Support both camelCase and snake_case inputs
+    const siteName = sanitizeRequired(body?.siteName ?? body?.site_name, DEFAULT_SITE_SETTINGS.site_name)
     const tagline = sanitizeOptional(body?.tagline)
-    const supportEmail = sanitizeOptional(body?.supportEmail)
+    const supportEmail = sanitizeOptional(body?.supportEmail ?? body?.support_email)
     const imprint = sanitizeOptional(body?.imprint)
     const privacy = sanitizeOptional(body?.privacy)
+    const heroTitle = sanitizeOptional(body?.heroTitle ?? body?.hero_title)
+    const heroSubtitle = sanitizeOptional(body?.heroSubtitle ?? body?.hero_subtitle)
+    const heroDescription = sanitizeOptional(body?.heroDescription ?? body?.hero_description)
+    const heroPrimaryCtaLabel = sanitizeOptional(body?.heroPrimaryCtaLabel ?? body?.hero_primary_cta_label)
+    const heroPrimaryCtaUrl = sanitizeOptional(body?.heroPrimaryCtaUrl ?? body?.hero_primary_cta_url)
+    const heroSecondaryCtaLabel = sanitizeOptional(body?.heroSecondaryCtaLabel ?? body?.hero_secondary_cta_label)
+    const heroSecondaryCtaUrl = sanitizeOptional(body?.heroSecondaryCtaUrl ?? body?.hero_secondary_cta_url)
+    const servicesSectionEyebrow = sanitizeOptional(body?.servicesSectionEyebrow ?? body?.services_section_eyebrow)
+    const servicesSectionTitle = sanitizeOptional(body?.servicesSectionTitle ?? body?.services_section_title)
+    const servicesSectionDescription = sanitizeOptional(body?.servicesSectionDescription ?? body?.services_section_description)
+
+    // DEBUG: Log what we're about to save
+    const dataToSave = {
+      id: SITE_SETTINGS_ID,
+      site_name: siteName,
+      tagline,
+      support_email: supportEmail,
+      imprint,
+      privacy,
+      hero_title: heroTitle,
+      hero_subtitle: heroSubtitle,
+      hero_description: heroDescription,
+      hero_primary_cta_label: heroPrimaryCtaLabel,
+      hero_primary_cta_url: heroPrimaryCtaUrl,
+      hero_secondary_cta_label: heroSecondaryCtaLabel,
+      hero_secondary_cta_url: heroSecondaryCtaUrl,
+      services_section_eyebrow: servicesSectionEyebrow,
+      services_section_title: servicesSectionTitle,
+      services_section_description: servicesSectionDescription,
+      updated_at: new Date().toISOString(),
+    }
+    console.log('=== DATA TO SAVE ===')
+    console.log('hero_title:', dataToSave.hero_title)
+    console.log('hero_subtitle:', dataToSave.hero_subtitle)
+    console.log('Full data:', JSON.stringify(dataToSave, null, 2))
 
     const supabase = getSupabaseAdminClient()
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .upsert(
-        {
-          id: SITE_SETTINGS_ID,
-          site_name: siteName,
-          tagline,
-          support_email: supportEmail,
-          imprint,
-          privacy,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: 'id' },
-      )
+      .upsert(dataToSave, { onConflict: 'id' })
       .select()
       .single()
+
+    console.log('=== UPSERT RESULT ===')
+    console.log('Error:', error)
+    console.log('Returned data:', JSON.stringify(data, null, 2))
 
     if (error || !data) {
       console.error('Database error saving site settings:', error)
@@ -117,3 +147,7 @@ export async function PUT(request: NextRequest) {
     return handleApiError(error)
   }
 }
+
+// Support both PUT and POST methods
+export const PUT = saveSettings
+export const POST = saveSettings

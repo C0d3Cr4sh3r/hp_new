@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CloudArrowDownIcon, ClipboardIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import ArcaneNavigation from '@/components/arcane/ArcaneNavigation'
+import ArcaneFooter from '@/components/arcane/ArcaneFooter'
 import type { DownloadEntry } from '@/lib/supabase'
 
 export default function DownloadsPage() {
@@ -74,9 +75,9 @@ export default function DownloadsPage() {
   return (
     <>
       <ArcaneNavigation />
-      <div className="mx-auto max-w-5xl px-4 py-10">
+      <main className="mx-auto max-w-7xl px-4 py-8 lg:px-8">
         <header className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-white">ArcanePixels Downloads</h1>
+          <h1 className="mb-4 text-4xl font-bold text-white">Downloads</h1>
           <p className="text-purple-200 text-lg">
             Lade die neuesten Companion-Builds herunter und prüfe Prüfsummen sowie Changelogs.
           </p>
@@ -203,7 +204,8 @@ export default function DownloadsPage() {
             ))}
           </ul>
         )}
-      </div>
+      </main>
+      <ArcaneFooter />
     </>
   )
 }

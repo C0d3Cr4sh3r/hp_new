@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   AdjustmentsHorizontalIcon,
   ArrowPathIcon,
@@ -9,6 +9,19 @@ import {
 } from '@heroicons/react/24/outline'
 import type { AssistantSettings } from './types'
 import { AVAILABLE_GEMINI_MODELS } from './constants'
+
+type GeminiModel = {
+  value: string
+  label: string
+  description?: string
+  recommended?: boolean
+  free?: boolean
+  pricing?: {
+    inputPer1M?: number
+    outputPer1M?: number
+    note?: string
+  }
+}
 
 type AssistantSettingsPanelProps = {
   settings: AssistantSettings
@@ -25,6 +38,36 @@ export function AssistantSettingsPanel({
   onReset,
   settingsReady,
 }: AssistantSettingsPanelProps) {
+  const [availableModels, setAvailableModels] = useState<GeminiModel[]>(AVAILABLE_GEMINI_MODELS)
+  const [modelsLoading, setModelsLoading] = useState(false)
+  const [modelsError, setModelsError] = useState<string | null>(null)
+
+  // Modelle dynamisch von Google API laden
+  useEffect(() => {
+    const loadModels = async () => {
+      setModelsLoading(true)
+      setModelsError(null)
+      try {
+        const response = await fetch('/api/assistant/models')
+        if (response.ok) {
+          const data = await response.json()
+          if (data.models && data.models.length > 0) {
+            setAvailableModels(data.models)
+          }
+        } else {
+          setModelsError('Konnte Modelle nicht laden')
+        }
+      } catch (error) {
+        console.warn('Fehler beim Laden der Modelle:', error)
+        setModelsError('Netzwerkfehler')
+      } finally {
+        setModelsLoading(false)
+      }
+    }
+
+    loadModels()
+  }, [])
+
   const handleFieldChange = useCallback(
     <Key extends keyof AssistantSettings>(key: Key, value: AssistantSettings[Key]) => {
       onChange({ ...settings, [key]: value })
@@ -35,6 +78,24 @@ export function AssistantSettingsPanel({
   const handleReset = useCallback(() => {
     onReset()
   }, [onReset])
+
+  const handleRefreshModels = useCallback(async () => {
+    setModelsLoading(true)
+    setModelsError(null)
+    try {
+      const response = await fetch('/api/assistant/models')
+      if (response.ok) {
+        const data = await response.json()
+        if (data.models && data.models.length > 0) {
+          setAvailableModels(data.models)
+        }
+      }
+    } catch (error) {
+      console.warn('Fehler beim Aktualisieren der Modelle:', error)
+    } finally {
+      setModelsLoading(false)
+    }
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -99,20 +160,80 @@ export function AssistantSettingsPanel({
             </div>
 
             <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-purple-300">Gemini-Modell</label>
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold uppercase tracking-widest text-purple-300">Gemini-Modell</label>
+                <button
+                  type="button"
+                  onClick={handleRefreshModels}
+                  disabled={modelsLoading}
+                  className="inline-flex items-center gap-1 text-xs text-purple-400 hover:text-purple-200 transition disabled:opacity-50"
+                  title="Modelle aktualisieren"
+                >
+                  <ArrowPathIcon className={`h-3 w-3 ${modelsLoading ? 'animate-spin' : ''}`} />
+                  {modelsLoading ? 'Lädt...' : 'Aktualisieren'}
+                </button>
+              </div>
               <select
                 value={settings.model}
                 onChange={(event) => handleFieldChange('model', event.target.value)}
                 className="mt-2 w-full rounded-xl border border-purple-500/40 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-purple-300"
-                disabled={!settingsReady}
+                disabled={!settingsReady || modelsLoading}
               >
-                {AVAILABLE_GEMINI_MODELS.map((model) => (
+                {availableModels.map((model) => (
                   <option key={model.value} value={model.value}>
+                    {model.free === false ? '💰 ' : '✅ '}
                     {model.label}
-                    {model.recommended ? ' (Empfohlen)' : ''}
+                    {model.recommended ? ' ⭐' : ''}
                   </option>
                 ))}
               </select>
+
+              {/* Preisinfo für ausgewähltes Modell */}
+              {(() => {
+                const selectedModel = availableModels.find(m => m.value === settings.model)
+                if (!selectedModel) return null
+
+                return (
+                  <div className={`mt-2 rounded-lg p-2 text-xs ${selectedModel.free === false ? 'bg-yellow-500/10 border border-yellow-500/30' : 'bg-green-500/10 border border-green-500/30'}`}>
+                    {selectedModel.free === false ? (
+                      <>
+                        <p className="font-medium text-yellow-300">💰 Kostenpflichtiges Modell</p>
+                        <p className="text-yellow-200/80 mt-1">
+                          ~${selectedModel.pricing?.inputPer1M?.toFixed(2) || '?'}/1M Input-Tokens •
+                          ~${selectedModel.pricing?.outputPer1M?.toFixed(2) || '?'}/1M Output-Tokens
+                        </p>
+                        <p className="text-yellow-200/60 mt-1">
+                          ≈ 0,001-0,01$ pro Anfrage (je nach Länge)
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="font-medium text-green-300">✅ Kostenloses Modell</p>
+                        <p className="text-green-200/80 mt-1">
+                          {selectedModel.pricing?.note || 'Mit Fair-Use-Limit (ausreichend für normale Nutzung)'}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                )
+              })()}
+
+              {modelsError && (
+                <p className="mt-1 text-xs text-yellow-400">
+                  ⚠️ {modelsError} – verwende Fallback-Liste
+                </p>
+              )}
+              <p className="mt-2 text-xs text-purple-400">
+                ✅ = Kostenlos • 💰 = Kostenpflichtig • ⭐ = Empfohlen
+              </p>
+              <a
+                href="https://ai.google.dev/pricing"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-purple-400 hover:text-purple-200 underline"
+              >
+                → Aktuelle Google-Preise ansehen
+              </a>
             </div>
 
             <div className="flex items-center gap-3">
@@ -126,6 +247,21 @@ export function AssistantSettingsPanel({
               />
               <label htmlFor="assistant-quick-actions" className="text-xs text-purple-200">
                 Schnellaktionen aktivieren (Auswahl von vordefinierten Aufgaben direkt im Chat)
+              </label>
+            </div>
+
+            <div className="flex items-center gap-3 mt-3 pt-3 border-t border-purple-500/20">
+              <input
+                id="assistant-global"
+                type="checkbox"
+                checked={settings.enableGlobalAssistant}
+                onChange={(event) => handleFieldChange('enableGlobalAssistant', event.target.checked)}
+                className="h-4 w-4 rounded border border-purple-400 bg-black/40 text-purple-500 focus:ring-purple-400"
+                disabled={!settingsReady}
+              />
+              <label htmlFor="assistant-global" className="text-xs text-purple-200">
+                <span className="font-medium text-purple-100">Globaler Assistent</span> – Zeigt einen Floating-Button auf allen Admin-Seiten.
+                Du kannst Text markieren und die KI hilft dir beim Bearbeiten.
               </label>
             </div>
           </div>

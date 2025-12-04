@@ -5,7 +5,7 @@ import { ensureAdminAccess } from '@/lib/admin/serverAuth'
 
 export async function GET() {
   try {
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const { data, error } = await supabase.from('news').select('*').order('updated_at', { ascending: false })
 
     if (error) {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const payload = {
       title: String(body.title),
       slug: String(body.slug),

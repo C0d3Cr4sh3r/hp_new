@@ -3,6 +3,7 @@ export type AssistantSettings = {
   temperature: number
   enableQuickActions: boolean
   model: string
+  enableGlobalAssistant: boolean
 }
 
 export type ChatMessage = {

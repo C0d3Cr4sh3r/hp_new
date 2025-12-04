@@ -16,6 +16,9 @@ export function Navigation() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Optional external EventHub URL. If set, links will point there instead of internal routes.
+  const eventHubBase = process.env.NEXT_PUBLIC_EVENTHUB_URL ?? ''
+
   const navigation = [
     { name: 'Home', href: '#', current: true },
     { name: 'Features', href: '#features', current: false },
@@ -32,18 +35,21 @@ export function Navigation() {
   ];
 
   const eventHubNavigation = [
-    { name: 'Überblick', href: '/eventhub', external: true },
-    { name: 'Funktionen', href: '/eventhub#features', external: true },
-    { name: 'Sicherheit', href: '/eventhub#security', external: true },
-    { name: 'Login', href: '/eventhub/login', external: true },
-    { name: 'Dashboard', href: '/eventhub/dashboard', external: true },
+    { name: 'Überblick', href: eventHubBase ? `${eventHubBase.replace(/\/$/, '')}` : '/eventhub', external: Boolean(eventHubBase) },
+    { name: 'Funktionen', href: eventHubBase ? `${eventHubBase.replace(/\/$/, '')}#features` : '/eventhub#features', external: Boolean(eventHubBase) },
+    { name: 'Sicherheit', href: eventHubBase ? `${eventHubBase.replace(/\/$/, '')}#security` : '/eventhub#security', external: Boolean(eventHubBase) },
+    { name: 'Login', href: eventHubBase ? `${eventHubBase.replace(/\/$/, '')}/login` : '/eventhub/login', external: Boolean(eventHubBase) },
+    { name: 'Dashboard', href: eventHubBase ? `${eventHubBase.replace(/\/$/, '')}/dashboard` : '/eventhub/dashboard', external: Boolean(eventHubBase) },
   ];
 
   const scrollToSection = (href: string) => {
     if (href === '#') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else if (href.startsWith('/')) {
-      // External link navigation
+      // Internal route navigation
+      window.location.href = href;
+    } else if (href.startsWith('http')) {
+      // Absolute external URL
       window.location.href = href;
     } else {
       document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });

@@ -29,6 +29,10 @@ const cards = [
 ]
 
 export function EventHubSection() {
+  // Use external EventHub URL when provided via env var, fallback to internal routes
+  const eventHubBase = process.env.NEXT_PUBLIC_EVENTHUB_URL ?? ''
+  const buildHref = (path: string) => (eventHubBase ? `${eventHubBase.replace(/\/$/, '')}${path}` : path)
+
   const navigate = (href: string) => {
     window.location.href = href
   }
@@ -47,13 +51,13 @@ export function EventHubSection() {
           </p>
           <div className="flex flex-wrap justify-center gap-4 pt-4">
             <button
-              onClick={() => navigate('/eventhub')}
+              onClick={() => navigate(buildHref('/eventhub'))}
               className="inline-flex h-12 items-center rounded-full bg-blue-500 px-8 text-sm font-semibold text-white shadow-lg shadow-blue-700/40 transition hover:bg-blue-400"
             >
               Bereich öffnen
             </button>
             <button
-              onClick={() => navigate('/eventhub/login')}
+              onClick={() => navigate(buildHref('/eventhub/login'))}
               className="inline-flex h-12 items-center rounded-full border border-blue-500/60 px-8 text-sm font-semibold text-blue-100 transition hover:border-blue-300 hover:text-blue-200"
             >
               Direkt zum Login
@@ -72,7 +76,7 @@ export function EventHubSection() {
               <h3 className="mt-4 text-xl font-semibold text-white">{card.title}</h3>
               <p className="mt-3 text-sm text-blue-100 leading-relaxed">{card.description}</p>
               <button
-                onClick={() => navigate('/eventhub')}
+                onClick={() => navigate(buildHref('/eventhub'))}
                 className="mt-5 inline-flex items-center text-sm font-medium text-blue-200 transition hover:text-white"
               >
                 Mehr erfahren

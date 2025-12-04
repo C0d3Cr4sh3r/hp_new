@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { getSupabaseAdminClient } from '@/lib/supabaseAdmin'
 import sharp from 'sharp'
 import { ensureAdminAccess } from '@/lib/admin/serverAuth'
 
@@ -69,7 +69,9 @@ export async function POST(request: NextRequest) {
     const storagePath = `portfolios/${filename}`
     
     console.log('Uploading to storage:', storagePath)
-    
+
+    const supabase = getSupabaseAdminClient()
+
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('portfolio-images')
@@ -77,17 +79,26 @@ export async function POST(request: NextRequest) {
         contentType: 'image/webp',
         cacheControl: '3600'
       })
-    
+
     if (uploadError) {
       console.error('Upload error:', uploadError)
+
+      // Bucket nicht gefunden?
+      if (uploadError.message?.includes('not found') || uploadError.message?.includes('Bucket')) {
+        return NextResponse.json(
+          { error: 'Storage-Bucket "portfolio-images" nicht gefunden. Bitte in Supabase erstellen.', success: false },
+          { status: 500 }
+        )
+      }
+
       return NextResponse.json(
         { error: 'Failed to upload image', success: false },
         { status: 500 }
       )
     }
-    
+
     console.log('Upload successful:', uploadData.path)
-    
+
     // Get public URL
     const { data: urlData } = supabase.storage
       .from('portfolio-images')

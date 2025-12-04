@@ -16,7 +16,7 @@ export async function PUT(
     const { id: idParam } = await params
     const body = await request.json()
 
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const allowedKeys = new Set<keyof DownloadEntry>([
       'title',
       'version',
@@ -54,6 +54,9 @@ export async function PUT(
   }
 }
 
+const BUCKET_NAME = 'downloads'
+const SUPABASE_STORAGE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL + '/storage/v1/object/public/downloads/'
+
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -66,6 +69,33 @@ export async function DELETE(
   try {
     const { id: idParam } = await params
     const supabase = getSupabaseAdminClient()
+
+    // 1. Hole zuerst die Download-Daten um die Datei-URL zu bekommen
+    const { data: download, error: fetchError } = await supabase
+      .from('downloads')
+      .select('file_url')
+      .eq('id', idParam)
+      .single()
+
+    if (fetchError) {
+      console.error('Error fetching download:', fetchError)
+    }
+
+    // 2. Wenn es eine Supabase Storage URL ist, lösche die Datei
+    if (download?.file_url && download.file_url.includes(SUPABASE_STORAGE_URL)) {
+      const storagePath = download.file_url.replace(SUPABASE_STORAGE_URL, '')
+
+      const { error: storageError } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove([storagePath])
+
+      if (storageError) {
+        console.error('Error deleting file from storage:', storageError)
+        // Weiter machen auch wenn Datei nicht gelöscht werden konnte
+      }
+    }
+
+    // 3. Lösche den Datenbank-Eintrag
     const { error } = await supabase.from('downloads').delete().eq('id', idParam)
 
     if (error) {

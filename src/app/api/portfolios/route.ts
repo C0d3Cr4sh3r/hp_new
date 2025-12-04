@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/supabase'
+import { getSupabaseAdminClient } from '@/lib/supabaseAdmin'
 import { ensureAdminAccess } from '@/lib/admin/serverAuth'
 
 // GET /api/portfolios - Get all active portfolios
@@ -51,28 +52,35 @@ export async function POST(request: NextRequest) {
       )
     }
     
-    // Create the portfolio
-    const portfolio = await DatabaseService.createPortfolio({
-      title: body.title,
-      description: body.description || '',
-      category: body.category,
-      image_url: body.image_url || '',
-      image_alt: body.image_alt || '',
-      image_width: body.image_width || undefined,
-      image_height: body.image_height || undefined,
-      image_storage_path: body.image_storage_path || '',
-      project_url: body.project_url || '',
-      client_name: body.client_name || '',
-      project_date: body.project_date || '',
-      technologies: body.technologies || [],
-      is_featured: body.is_featured || false,
-      sort_order: body.sort_order || 0,
-      status: body.status || 'active'
-    })
-    
-    if (!portfolio) {
+    // Create the portfolio using Admin Client
+    const supabase = getSupabaseAdminClient()
+
+    const { data: portfolio, error } = await supabase
+      .from('portfolios')
+      .insert({
+        title: body.title,
+        description: body.description || '',
+        category: body.category,
+        image_url: body.image_url || '',
+        image_alt: body.image_alt || '',
+        image_width: body.image_width || null,
+        image_height: body.image_height || null,
+        image_storage_path: body.image_storage_path || '',
+        project_url: body.project_url || '',
+        client_name: body.client_name || '',
+        project_date: body.project_date || '',
+        technologies: body.technologies || [],
+        is_featured: body.is_featured || false,
+        sort_order: body.sort_order || 0,
+        status: body.status || 'active'
+      })
+      .select()
+      .single()
+
+    if (error || !portfolio) {
+      console.error('Error creating portfolio:', error)
       return NextResponse.json(
-        { error: 'Failed to create portfolio', success: false },
+        { error: `Failed to create portfolio: ${error?.message || 'Unknown error'}`, details: error, success: false },
         { status: 500 }
       )
     }

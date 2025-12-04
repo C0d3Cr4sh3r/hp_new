@@ -16,7 +16,7 @@ export async function PUT(
     const { id: idParam } = await params
 
     const body = await request.json()
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const { data, error } = await supabase
       .from('news')
       .update({ ...body, updated_at: new Date().toISOString() })
@@ -46,7 +46,7 @@ export async function DELETE(
 
   try {
     const { id: idParam } = await params
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const { error } = await supabase.from('news').delete().eq('id', idParam)
 
     if (error) {

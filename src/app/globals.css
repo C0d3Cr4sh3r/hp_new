@@ -1,26 +1,166 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fallback-Werte - werden vom Root-Layout überschrieben */
+  --theme-primary: #6366f1;
+  --theme-accent: #ec4899;
+  --theme-primary-rgb: 99, 102, 241;
+  --theme-accent-rgb: 236, 72, 153;
+
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--theme-primary);
+  --color-accent: var(--theme-accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Theme-basierte Utility-Klassen */
+.bg-theme-primary {
+  background-color: var(--theme-primary);
+}
+
+.bg-theme-accent {
+  background-color: var(--theme-accent);
+}
+
+.text-theme-primary {
+  color: var(--theme-primary);
+}
+
+.text-theme-accent {
+  color: var(--theme-accent);
+}
+
+.border-theme-primary {
+  border-color: var(--theme-primary);
+}
+
+.border-theme-accent {
+  border-color: var(--theme-accent);
+}
+
+/* Gradient mit Theme-Farben */
+.bg-theme-gradient {
+  background: linear-gradient(to bottom right, var(--theme-primary), #1e1b4b, rgba(var(--theme-accent-rgb), 0.2));
+}
+
+/* Tailwind-kompatible Gradient-Farben für from-/to- Klassen */
+.from-theme-primary {
+  --tw-gradient-from: var(--theme-primary) var(--tw-gradient-from-position);
+  --tw-gradient-to: transparent var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+
+.to-theme-accent {
+  --tw-gradient-to: var(--theme-accent) var(--tw-gradient-to-position);
+}
+
+.via-theme-accent {
+  --tw-gradient-to: transparent var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--theme-accent) var(--tw-gradient-via-position), var(--tw-gradient-to);
+}
+
+/* Theme-basierte Hover-Effekte */
+.hover\:bg-theme-primary:hover {
+  background-color: var(--theme-primary);
+}
+
+.hover\:text-theme-primary:hover {
+  color: var(--theme-primary);
+}
+
+/* =====================================================
+   BFSG/WCAG 2.1 AA - Barrierefreiheit Styles
+   ===================================================== */
+
+/* Fokus-Indikatoren (WCAG 2.4.7) */
+:focus-visible {
+  outline: 3px solid var(--theme-primary, #a855f7);
+  outline-offset: 2px;
+}
+
+/* Verbesserte Fokus-Styles für Links */
+a:focus-visible {
+  outline: 3px solid var(--theme-primary, #a855f7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Fokus-Styles für Buttons */
+button:focus-visible {
+  outline: 3px solid var(--theme-primary, #a855f7);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Fokus-Styles für Formularelemente */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--theme-primary, #a855f7);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Screen Reader Only - für versteckte Labels */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Reduzierte Bewegung für Nutzer mit Vestibulären Störungen (WCAG 2.3.3) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mindest-Kontrast für Text auf dunklem Hintergrund */
+.text-accessible {
+  color: #e9d5ff; /* Lila 200 - ausreichend Kontrast auf dunklem Grund */
+}
+
+/* High-Contrast Modus Support */
+@media (prefers-contrast: high) {
+  :root {
+    --theme-primary: #c084fc;
+    --theme-accent: #f472b6;
+  }
+
+  a, button {
+    text-decoration: underline;
+  }
+}
+
+/* Touch-Target Mindestgröße (WCAG 2.5.5) - 44x44px */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }

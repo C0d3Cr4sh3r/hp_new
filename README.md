@@ -59,7 +59,7 @@ npm run dev
 
 ## Landing-Content-Workflow
 
-- Tabelle `tfp_sections` (Spalten `section_key` text PK, `headline` text, `subheadline` text, `description` text, `bullets` jsonb, `cta_label` text, `cta_url` text, `image_url` text, `image_alt` text, `image_width` int4, `image_height` int4, `image_storage_path` text, `created_at` timestamptz default now(), `updated_at` timestamptz).
+- Tabelle `shootinghub_sections` (Spalten `section_key` text PK, `headline` text, `subheadline` text, `description` text, `bullets` jsonb, `cta_label` text, `cta_url` text, `image_url` text, `image_alt` text, `image_width` int4, `image_height` int4, `image_storage_path` text, `sort_order` int4 default 1, `is_active` boolean default true, `created_at` timestamptz default now(), `updated_at` timestamptz default now()).
 - Storage-Bucket `landing-assets` (öffentlich). Uploads laufen über `/api/shootinghub-section/upload` und werden serverseitig mit [`sharp`](https://sharp.pixelplumbing.com/) auf max. 1600 px Breite (900 px Höhe, fit `inside`) reduziert und als WebP abgelegt.
 - Admin-Tab **Landing Content** (`src/components/admin/landing/LandingContentPanel.tsx`) verwaltet Texte, Bullet-Points, CTA-Link sowie das optimierte Hero-Bild.
 - Öffentliche Sektion (`src/components/arcane/ArcaneGallery.tsx`, Abschnitt `#shootinghub`) lädt Inhalte über `/api/shootinghub-section` und fällt bei fehlenden Daten auf `DEFAULT_SHOOTINGHUB_SECTION` zurück.

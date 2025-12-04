@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     const { data: webpBuffer, info } = await transformer.webp({ quality: 85 }).toBuffer({ resolveWithObject: true })
 
-    const supabase = getSupabaseAdminClient()
+  const supabase = getSupabaseAdminClient()
     const fileName = `${Date.now()}-${randomUUID()}.webp`
     const storagePath = `${category}/${fileName}`
 
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     // Wenn createScreenshot true ist und wir Titel haben, direkt Screenshot-Eintrag erstellen
     if (createScreenshot && title) {
       try {
-        const { data: screenshot, error: dbError } = await supabase
+  const { data: screenshot, error: dbError } = await supabase
           .from('screenshots')
           .insert({
             title,
