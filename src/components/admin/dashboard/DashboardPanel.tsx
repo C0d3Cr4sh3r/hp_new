@@ -42,12 +42,36 @@ export function DashboardPanel() {
     setHealthLoading(true)
     try {
       const res = await fetch('/api/admin/health')
+      const data = await res.json()
       if (res.ok) {
-        const data = await res.json()
         setHealthStatus(data)
+      } else {
+        // Fehler anzeigen (z.B. 401 Nicht autorisiert)
+        setHealthStatus({
+          status: 'error',
+          timestamp: new Date().toISOString(),
+          environment: 'unknown',
+          checks: {
+            api_error: {
+              status: 'error',
+              message: data.error || `HTTP ${res.status}`
+            }
+          }
+        })
       }
     } catch (err) {
       console.error('Failed to load health status:', err)
+      setHealthStatus({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        environment: 'unknown',
+        checks: {
+          connection: {
+            status: 'error',
+            message: 'Verbindungsfehler'
+          }
+        }
+      })
     } finally {
       setHealthLoading(false)
     }
