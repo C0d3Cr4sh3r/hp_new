@@ -6,7 +6,8 @@ import {
   PhotoIcon,
   NewspaperIcon,
   BugAntIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
 interface ArcaneFeature {
@@ -22,7 +23,7 @@ const arcaneFeatures: ArcaneFeature[] = [
     icon: CameraIcon,
     title: 'Fotografie Portfolio',
     description: 'Professionelle Galerie mit Lightbox-Funktion und kategorisierten Sammlungen.',
-    href: '/arcane/gallery',
+    href: '/#screenshots',
     color: 'from-purple-500 to-pink-500',
   },
   {
@@ -34,10 +35,17 @@ const arcaneFeatures: ArcaneFeature[] = [
   },
   {
     icon: PhotoIcon,
-    title: 'TFP-Manager App',
+    title: 'ShootingHub App',
     description: 'Mobile App für Zeit- und Projektmanagement bei Fotoshootings.',
-    href: '/arcane',
+    href: '/#shootinghub',
     color: 'from-rose-500 to-orange-500',
+  },
+  {
+    icon: Cog6ToothIcon,
+    title: 'Admin Control Center',
+    description: 'Verwalte Downloads, Themes, Inhalte und veröffentliche News im Admin-Bereich.',
+    href: '/admin',
+    color: 'from-indigo-500 to-purple-500',
   },
   {
     icon: NewspaperIcon,
@@ -86,7 +94,7 @@ export function ArcanePixelsSection() {
           </p>
 
           <button
-            onClick={() => handleNavigation('/arcane')}
+            onClick={() => handleNavigation('/')}
             className="inline-flex items-center px-8 py-4 bg-white text-purple-800 font-semibold rounded-xl hover:bg-purple-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
             Jetzt entdecken

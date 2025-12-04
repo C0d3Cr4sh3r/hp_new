@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/supabase'
+import { ensureAdminAccess } from '@/lib/admin/serverAuth'
 
 // GET /api/events - Fetch all events
 export async function GET() {
@@ -17,6 +18,11 @@ export async function GET() {
 
 // POST /api/events - Create new event
 export async function POST(request: NextRequest) {
+  const authResponse = ensureAdminAccess(request)
+  if (authResponse) {
+    return authResponse
+  }
+
   try {
     const body = await request.json()
     

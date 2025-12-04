@@ -7,8 +7,7 @@ export function Hero() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    const frame = requestAnimationFrame(() => setIsVisible(true));
-    return () => cancelAnimationFrame(frame);
+    setIsVisible(true);
   }, []);
 
   const scrollToFeatures = () => {

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DatabaseService } from '@/lib/supabase'
+import { ensureAdminAccess } from '@/lib/admin/serverAuth'
 
 // PUT /api/events/[id] - Update specific event
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResponse = ensureAdminAccess(request)
+  if (authResponse) {
+    return authResponse
+  }
+
   try {
     const { id: idParam } = await params
     const id = parseInt(idParam)
@@ -33,6 +39,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const authResponse = ensureAdminAccess(request)
+  if (authResponse) {
+    return authResponse
+  }
+
   try {
     const { id: idParam } = await params
     const id = parseInt(idParam)

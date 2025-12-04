@@ -1,0 +1,12 @@
+export { SectionRenderer } from './SectionRenderer'
+export { HeroSection } from './HeroSection'
+export { FeaturesSection } from './FeaturesSection'
+export { CTASection } from './CTASection'
+export { ImageTextSection } from './ImageTextSection'
+export { GallerySection } from './GallerySection'
+export { TestimonialsSection } from './TestimonialsSection'
+export { PricingSection } from './PricingSection'
+export { FAQSection } from './FAQSection'
+export { ContactSection } from './ContactSection'
+export { CustomSection } from './CustomSection'
+

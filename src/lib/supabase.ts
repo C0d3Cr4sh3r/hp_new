@@ -1,247 +1,479 @@
 import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdminClient } from '@/lib/supabaseAdmin'
 
+// Re-export all types from centralized type files for backward compatibility
+export type {
+  Event,
+  Project,
+  User,
+  NewsArticle,
+  Screenshot,
+  Portfolio,
+  Service,
+  ShootingHubDownload,
+  DownloadEntry,
+  BugRecord,
+} from '@/types/database'
+
+export type {
+  SiteSettings,
+  ServicesSectionSettings,
+  FooterLink,
+  FooterSection,
+  ThemeSettings,
+  ShootingHubSectionContent,
+} from '@/types/settings'
+
+export {
+  DEFAULT_SITE_SETTINGS,
+  DEFAULT_SERVICES_SECTION,
+  DEFAULT_THEME_SETTINGS,
+  DEFAULT_SHOOTINGHUB_SECTION,
+} from '@/types/settings'
+
+// Import types for internal use
+import type {
+  Event,
+  NewsArticle,
+  Screenshot,
+  Portfolio,
+  Service,
+  ShootingHubDownload,
+} from '@/types/database'
+
+import type {
+  SiteSettings,
+  ServicesSectionSettings,
+} from '@/types/settings'
+
+// Public client für client-side Zugriffe (mit RLS)
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
-export interface Event {
-  id?: number
-  title: string
-  description?: string
-  date: string
-  time?: string
-  location?: string
-  photographer_id?: string
-  model_id?: string
-  type: 'tfp' | 'paid' | 'collaboration'
-  status: 'planned' | 'confirmed' | 'completed' | 'cancelled'
-  created_at?: string
-  updated_at?: string
+// Admin client für serverseitige Zugriffe (umgeht RLS)
+const getAdminClient = () => {
+  try {
+    return getSupabaseAdminClient()
+  } catch {
+    // Fallback auf public client wenn service key nicht verfügbar
+    return supabase
+  }
 }
-
-export interface Project {
-  id?: number
-  name: string
-  description?: string
-  type: 'portfolio' | 'commercial' | 'personal'
-  status: 'active' | 'completed' | 'archived'
-  images?: string[]
-  tags?: string[]
-  created_at?: string
-  updated_at?: string
-}
-
-export interface User {
-  id: string
-  email: string
-  name?: string
-  role: 'photographer' | 'model' | 'admin'
-  profile_image?: string
-  bio?: string
-  portfolio_url?: string
-  created_at?: string
-  updated_at?: string
-}
-
-const mockEvents: Event[] = [
-  {
-    id: 1,
-    title: 'Portrait Shooting mit Model Sarah',
-    description: 'Kreatives Portrait-Shooting im urbanen Umfeld',
-    date: '2024-11-15',
-    time: '14:00',
-    location: 'Hamburg Speicherstadt',
-    type: 'tfp',
-    status: 'confirmed',
-  },
-  {
-    id: 2,
-    title: 'Fashion Shoot Downtown',
-    description: 'Kommerzielle Fashion-Fotografie für neues Label',
-    date: '2024-11-20',
-    time: '10:00',
-    location: 'Berlin Mitte',
-    type: 'paid',
-    status: 'planned',
-  },
-]
 
 export class DatabaseService {
-  static async getEvents() {
-    try {
-      const { data, error } = await supabase.from('events').select('*').order('date', { ascending: true })
+  static async getSiteSettings(): Promise<SiteSettings> {
+    const adminClient = getAdminClient()
+    const { data, error } = await adminClient
+      .from('site_settings')
+      .select('*')
+      .eq('id', 'default')
+      .maybeSingle()
 
-      if (error) {
-        console.warn('Supabase error, using mock data:', error)
-        return mockEvents
-      }
-      return data as Event[]
-    } catch (error) {
-      console.warn('Supabase not available, using mock data', error)
-      return mockEvents
+    if (error) throw new Error(`Fehler beim Laden der Site-Settings: ${error.message}`)
+    if (!data) throw new Error('Site-Settings nicht gefunden')
+
+    return data as SiteSettings
+  }
+
+  static async getServicesSectionSettings(): Promise<ServicesSectionSettings> {
+    const adminClient = getAdminClient()
+    const { data, error } = await adminClient
+      .from('site_settings')
+      .select('services_section_eyebrow, services_section_title, services_section_description')
+      .eq('id', 'default')
+      .maybeSingle()
+
+    if (error) throw new Error(`Fehler beim Laden der Services-Section: ${error.message}`)
+    if (!data) throw new Error('Services-Section-Settings nicht gefunden')
+
+    return {
+      eyebrow: data.services_section_eyebrow ?? null,
+      title: data.services_section_title ?? null,
+      description: data.services_section_description ?? null,
     }
   }
 
-  static async createEvent(event: Omit<Event, 'id' | 'created_at' | 'updated_at'>) {
-    try {
-      const { data, error } = await supabase.from('events').insert([event]).select()
+  // News methods
+  static async getNews(): Promise<NewsArticle[]> {
+    const { data, error } = await supabase
+      .from('news')
+      .select('*')
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
 
-      if (error) {
-        console.warn('Supabase error, using mock creation:', error)
-        const newEvent = {
-          ...event,
-          id: mockEvents.length + 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-        mockEvents.push(newEvent)
-        return newEvent
-      }
-      return data[0] as Event
-    } catch (error) {
-      console.warn('Supabase not available, using mock creation', error)
-      const newEvent = {
-        ...event,
-        id: mockEvents.length + 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
-      mockEvents.push(newEvent)
-      return newEvent
-    }
+    if (error) throw new Error(`Fehler beim Laden der News: ${error.message}`)
+    return data ?? []
   }
 
-  static async updateEvent(id: number, updates: Partial<Event>) {
-    try {
-      const { data, error } = await supabase.from('events').update(updates).eq('id', id).select()
-
-      if (error) {
-        console.warn('Supabase error, using mock update:', error)
-        const eventIndex = mockEvents.findIndex((e) => e.id === id)
-        if (eventIndex >= 0) {
-          mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
-          return mockEvents[eventIndex]
-        }
-        throw new Error('Event not found')
-      }
-      return data[0] as Event
-    } catch (error) {
-      console.warn('Supabase not available, using mock update', error)
-      const eventIndex = mockEvents.findIndex((e) => e.id === id)
-      if (eventIndex >= 0) {
-        mockEvents[eventIndex] = { ...mockEvents[eventIndex], ...updates }
-        return mockEvents[eventIndex]
-      }
-      throw error
-    }
-  }
-
-  static async deleteEvent(id: number) {
-    try {
-      const { error } = await supabase.from('events').delete().eq('id', id)
-
-      if (error) {
-        console.warn('Supabase error, using mock deletion:', error)
-        const eventIndex = mockEvents.findIndex((e) => e.id === id)
-        if (eventIndex >= 0) {
-          mockEvents.splice(eventIndex, 1)
-          return true
-        }
-        throw new Error('Event not found')
-      }
-      return true
-    } catch (error) {
-      console.warn('Supabase not available, using mock deletion', error)
-      const eventIndex = mockEvents.findIndex((e) => e.id === id)
-      if (eventIndex >= 0) {
-        mockEvents.splice(eventIndex, 1)
-        return true
-      }
-      throw error
-    }
-  }
-
-  static async getProjects() {
-    try {
-      const { data, error } = await supabase.from('projects').select('*').order('created_at', { ascending: false })
-
-      if (error) {
-        console.warn('Supabase error, returning empty projects:', error)
-        return []
-      }
-      return data as Project[]
-    } catch (error) {
-      console.warn('Supabase not available, returning empty projects', error)
-      return []
-    }
-  }
-
-  static async createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) {
-    try {
-      const { data, error } = await supabase.from('projects').insert([project]).select()
-
-      if (error) {
-        console.warn('Supabase error, using mock project creation:', error)
-        return {
-          ...project,
-          id: 1,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        }
-      }
-      return data[0] as Project
-    } catch (error) {
-      console.warn('Supabase not available, using mock project creation', error)
-      return {
-        ...project,
-        id: 1,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }
-    }
-  }
-
-  static async getUsers() {
+  static async createNews(article: Omit<NewsArticle, 'id' | 'created_at' | 'updated_at'>): Promise<NewsArticle | null> {
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        console.warn('Supabase error, returning empty users:', error)
-        return []
-      }
-      return data as User[]
+        .from('news')
+        .insert(article)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
     } catch (error) {
-      console.warn('Supabase not available, returning empty users', error)
-      return []
+      console.error('Error creating news:', error)
+      return null
     }
   }
 
-  static async getUserById(id: string) {
+  static async updateNews(id: number, updates: Partial<NewsArticle>): Promise<NewsArticle | null> {
     try {
-      const { data, error } = await supabase.from('user_profiles').select('*').eq('id', id).single()
-
-      if (error) {
-        console.warn('Supabase error, returning mock user:', error)
-        return {
-          id,
-          email: 'demo@example.com',
-          name: 'Demo User',
-          role: 'photographer' as const,
-        }
-      }
-      return data as User
+      const { data, error } = await supabase
+        .from('news')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
     } catch (error) {
-      console.warn('Supabase not available, returning mock user', error)
-      return {
-        id,
-        email: 'demo@example.com',
-        name: 'Demo User',
-        role: 'photographer' as const,
-      }
+      console.error('Error updating news:', error)
+      return null
+    }
+  }
+
+  static async deleteNews(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting news:', error)
+      return false
+    }
+  }
+
+  // Screenshots methods
+  static async getScreenshots(): Promise<Screenshot[]> {
+    const { data, error } = await supabase
+      .from('screenshots')
+      .select('*')
+      .eq('status', 'active')
+      .order('sort_order', { ascending: true })
+
+    if (error) throw new Error(`Fehler beim Laden der Screenshots: ${error.message}`)
+    return data ?? []
+  }
+
+  static async getScreenshotsByCategory(category: string): Promise<Screenshot[]> {
+    const { data, error } = await supabase
+      .from('screenshots')
+      .select('*')
+      .eq('status', 'active')
+      .eq('category', category)
+      .order('sort_order', { ascending: true })
+
+    if (error) throw new Error(`Fehler beim Laden der Screenshots: ${error.message}`)
+    return data ?? []
+  }
+
+  static async createScreenshot(screenshot: Omit<Screenshot, 'id' | 'created_at' | 'updated_at'>): Promise<Screenshot | null> {
+    try {
+      const { data, error } = await supabase
+        .from('screenshots')
+        .insert(screenshot)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error creating screenshot:', error)
+      return null
+    }
+  }
+
+  static async updateScreenshot(id: number, updates: Partial<Screenshot>): Promise<Screenshot | null> {
+    try {
+      const { data, error } = await supabase
+        .from('screenshots')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error updating screenshot:', error)
+      return null
+    }
+  }
+
+  static async deleteScreenshot(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('screenshots')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting screenshot:', error)
+      return false
+    }
+  }
+
+  // Portfolio methods
+  static async getPortfolios(): Promise<Portfolio[]> {
+    const { data, error } = await supabase
+      .from('portfolios')
+      .select('*')
+      .eq('status', 'active')
+      .order('sort_order', { ascending: true })
+
+    if (error) throw new Error(`Fehler beim Laden der Portfolios: ${error.message}`)
+    return data ?? []
+  }
+
+  static async getPortfoliosByCategory(category: string): Promise<Portfolio[]> {
+    const { data, error } = await supabase
+      .from('portfolios')
+      .select('*')
+      .eq('status', 'active')
+      .eq('category', category)
+      .order('sort_order', { ascending: true })
+
+    if (error) throw new Error(`Fehler beim Laden der Portfolios: ${error.message}`)
+    return data ?? []
+  }
+
+  static async createPortfolio(portfolio: Omit<Portfolio, 'id' | 'created_at' | 'updated_at'>): Promise<Portfolio | null> {
+    try {
+      const { data, error } = await supabase
+        .from('portfolios')
+        .insert(portfolio)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error creating portfolio:', error)
+      return null
+    }
+  }
+
+  static async updatePortfolio(id: number, updates: Partial<Portfolio>): Promise<Portfolio | null> {
+    try {
+      const { data, error } = await supabase
+        .from('portfolios')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error updating portfolio:', error)
+      return null
+    }
+  }
+
+  static async deletePortfolio(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('portfolios')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting portfolio:', error)
+      return false
+    }
+  }
+
+  // Services methods
+  static async getServices(): Promise<Service[]> {
+    const { data, error } = await supabase
+      .from('services')
+      .select('*')
+      .eq('status', 'active')
+      .order('sort_order', { ascending: true })
+
+    if (error) throw new Error(`Fehler beim Laden der Services: ${error.message}`)
+    return data ?? []
+  }
+
+  static async createService(service: Omit<Service, 'id' | 'created_at' | 'updated_at'>): Promise<Service | null> {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .insert(service)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error creating service:', error)
+      return null
+    }
+  }
+
+  static async updateService(id: number, updates: Partial<Service>): Promise<Service | null> {
+    try {
+      const { data, error } = await supabase
+        .from('services')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error updating service:', error)
+      return null
+    }
+  }
+
+  static async deleteService(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('services')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting service:', error)
+      return false
+    }
+  }
+
+  // Downloads methods
+  static async getDownloads(): Promise<ShootingHubDownload[]> {
+    const { data, error } = await supabase
+      .from('downloads')
+      .select('*')
+      .order('release_date', { ascending: false })
+
+    if (error) throw new Error(`Fehler beim Laden der Downloads: ${error.message}`)
+    return data ?? []
+  }
+
+  static async createDownload(download: Omit<ShootingHubDownload, 'id' | 'created_at' | 'updated_at'>): Promise<ShootingHubDownload | null> {
+    try {
+      const { data, error } = await supabase
+        .from('downloads')
+        .insert(download)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error creating download:', error)
+      return null
+    }
+  }
+
+  static async updateDownload(id: number, updates: Partial<ShootingHubDownload>): Promise<ShootingHubDownload | null> {
+    try {
+      const { data, error } = await supabase
+        .from('downloads')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error updating download:', error)
+      return null
+    }
+  }
+
+  static async deleteDownload(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('downloads')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting download:', error)
+      return false
+    }
+  }
+
+  // Events methods
+  static async getEvents(): Promise<Event[]> {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('date', { ascending: false })
+
+    if (error) throw new Error(`Fehler beim Laden der Events: ${error.message}`)
+    return data ?? []
+  }
+
+  static async createEvent(event: Omit<Event, 'id' | 'created_at' | 'updated_at'>): Promise<Event | null> {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .insert(event)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error creating event:', error)
+      return null
+    }
+  }
+
+  static async updateEvent(id: number, updates: Partial<Event>): Promise<Event | null> {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .update(updates)
+        .eq('id', id)
+        .select()
+        .single()
+      
+      if (error) throw error
+      return data
+    } catch (error) {
+      console.error('Error updating event:', error)
+      return null
+    }
+  }
+
+  static async deleteEvent(id: number): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', id)
+      
+      if (error) throw error
+      return true
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      return false
     }
   }
 }
