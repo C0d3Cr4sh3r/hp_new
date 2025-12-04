@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabaseAdmin'
 import { cookies } from 'next/headers'
+import { ADMIN_AUTH_COOKIE } from '@/lib/admin/constants'
 
 // Health-Check-Endpoint für Admin-Bereich
 // Prüft ob alle erforderlichen Umgebungsvariablen gesetzt sind und die Datenbankverbindung funktioniert
 
 export async function GET() {
   const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('admin_session')
-  
+  const sessionCookie = cookieStore.get(ADMIN_AUTH_COOKIE)
+
   // Nur für eingeloggte Admins
   if (!sessionCookie?.value) {
     return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 })
