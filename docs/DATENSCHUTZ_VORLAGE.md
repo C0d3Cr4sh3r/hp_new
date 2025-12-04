@@ -1,8 +1,6 @@
-# Datenschutzerklärung - Vorlage für ArcanePixels
+# Datenschutzerklärung für ArcanePixels
 
-Diese Vorlage kann im Admin-Bereich unter "Rechtliche Inhalte" → "Datenschutzerklärung" eingefügt werden.
-
-**WICHTIG:** Ersetze alle `[PLATZHALTER]` mit deinen echten Daten!
+Diese Datenschutzerklärung ist bereits mit den korrekten Daten ausgefüllt.
 
 ---
 
@@ -12,13 +10,12 @@ Diese Vorlage kann im Admin-Bereich unter "Rechtliche Inhalte" → "Datenschutze
 
 Verantwortlich für die Datenverarbeitung auf dieser Website ist:
 
-**[DEIN VOLLSTÄNDIGER NAME]**  
-[DEINE STRASSE UND HAUSNUMMER]  
-[PLZ] [STADT]  
+**Hans-Michael Trummer**
+Am Bahnhof Broich 11
+45479 Mülheim an der Ruhr
 Deutschland
 
-E-Mail: [DEINE E-MAIL-ADRESSE]  
-Telefon: [OPTIONAL: DEINE TELEFONNUMMER]
+E-Mail: admin@arcanepixels.de
 
 ### 2. Überblick der Datenverarbeitung
 
@@ -115,7 +112,7 @@ Sie haben folgende Rechte bezüglich Ihrer personenbezogenen Daten:
 - **Widerspruchsrecht** (Art. 21 DSGVO) – Recht auf Widerspruch gegen die Verarbeitung
 - **Widerruf der Einwilligung** (Art. 7 Abs. 3 DSGVO) – Recht, erteilte Einwilligungen zu widerrufen
 
-Zur Ausübung Ihrer Rechte kontaktieren Sie bitte: [DEINE E-MAIL-ADRESSE]
+Zur Ausübung Ihrer Rechte kontaktieren Sie bitte: admin@arcanepixels.de
 
 ### 9. Beschwerderecht
 

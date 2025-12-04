@@ -1,18 +1,63 @@
 -- =====================================================
--- DATENSCHUTZERKLÄRUNG UPDATE
+-- IMPRESSUM & DATENSCHUTZERKLÄRUNG UPDATE
 -- =====================================================
--- Führe dieses SQL in Supabase aus, um die Datenschutzerklärung zu setzen.
--- WICHTIG: Ersetze alle [PLATZHALTER] mit deinen echten Daten!
+-- Führe dieses SQL in Supabase aus, um Impressum und Datenschutz zu setzen.
+-- =====================================================
+
+-- =====================================================
+-- 1. IMPRESSUM (Kleingewerbe nach § 5 TMG)
+-- =====================================================
+UPDATE site_settings SET imprint = '
+<h2>Angaben gemäß § 5 TMG</h2>
+
+<p><strong>Hans-Michael Trummer</strong><br>
+ArcanePixels<br>
+Am Bahnhof Broich 11<br>
+45479 Mülheim an der Ruhr<br>
+Deutschland</p>
+
+<h3>Kontakt</h3>
+<p>E-Mail: <a href="mailto:admin@arcanepixels.de">admin@arcanepixels.de</a></p>
+
+<h3>Umsatzsteuer-ID</h3>
+<p>Umsatzsteuerbefreit nach § 19 UStG (Kleinunternehmerregelung).</p>
+
+<h3>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h3>
+<p>Hans-Michael Trummer<br>
+Am Bahnhof Broich 11<br>
+45479 Mülheim an der Ruhr</p>
+
+<h2>Haftungsausschluss</h2>
+
+<h3>Haftung für Inhalte</h3>
+<p>Als Diensteanbieter bin ich gemäß § 7 Abs. 1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG bin ich als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.</p>
+<p>Verpflichtungen zur Entfernung oder Sperrung der Nutzung von Informationen nach den allgemeinen Gesetzen bleiben hiervon unberührt. Eine diesbezügliche Haftung ist jedoch erst ab dem Zeitpunkt der Kenntnis einer konkreten Rechtsverletzung möglich. Bei Bekanntwerden von entsprechenden Rechtsverletzungen werde ich diese Inhalte umgehend entfernen.</p>
+
+<h3>Haftung für Links</h3>
+<p>Diese Website enthält Links zu externen Websites Dritter, auf deren Inhalte ich keinen Einfluss habe. Deshalb kann ich für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der Verlinkung nicht erkennbar.</p>
+<p>Eine permanente inhaltliche Kontrolle der verlinkten Seiten ist jedoch ohne konkrete Anhaltspunkte einer Rechtsverletzung nicht zumutbar. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Links umgehend entfernen.</p>
+
+<h3>Urheberrecht</h3>
+<p>Die durch den Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind nur für den privaten, nicht kommerziellen Gebrauch gestattet.</p>
+<p>Soweit die Inhalte auf dieser Seite nicht vom Betreiber erstellt wurden, werden die Urheberrechte Dritter beachtet. Insbesondere werden Inhalte Dritter als solche gekennzeichnet. Sollten Sie trotzdem auf eine Urheberrechtsverletzung aufmerksam werden, bitte ich um einen entsprechenden Hinweis. Bei Bekanntwerden von Rechtsverletzungen werde ich derartige Inhalte umgehend entfernen.</p>
+
+<h2>Streitschlichtung</h2>
+<p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a></p>
+<p>Ich bin nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+' WHERE id = 'default';
+
+-- =====================================================
+-- 2. DATENSCHUTZERKLÄRUNG
 -- =====================================================
 
 UPDATE site_settings SET privacy = '
 <h2>1. Verantwortlicher</h2>
 <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
-<p><strong>[DEIN VOLLSTÄNDIGER NAME]</strong><br>
-[DEINE STRASSE UND HAUSNUMMER]<br>
-[PLZ] [STADT]<br>
+<p><strong>Hans-Michael Trummer</strong><br>
+Am Bahnhof Broich 11<br>
+45479 Mülheim an der Ruhr<br>
 Deutschland</p>
-<p>E-Mail: <a href="mailto:[DEINE-EMAIL@DOMAIN.DE]">[DEINE-EMAIL@DOMAIN.DE]</a></p>
+<p>E-Mail: <a href="mailto:admin@arcanepixels.de">admin@arcanepixels.de</a></p>
 
 <h2>2. Überblick der Datenverarbeitung</h2>
 <h3>Arten der verarbeiteten Daten</h3>
@@ -79,7 +124,7 @@ Deutschland</p>
 <li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO)</li>
 <li><strong>Widerruf der Einwilligung</strong> (Art. 7 Abs. 3 DSGVO)</li>
 </ul>
-<p>Zur Ausübung Ihrer Rechte kontaktieren Sie: <a href="mailto:[DEINE-EMAIL@DOMAIN.DE]">[DEINE-EMAIL@DOMAIN.DE]</a></p>
+<p>Zur Ausübung Ihrer Rechte kontaktieren Sie: <a href="mailto:admin@arcanepixels.de">admin@arcanepixels.de</a></p>
 
 <h2>9. Beschwerderecht</h2>
 <p>Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren.</p>
@@ -104,11 +149,13 @@ Deutschland</p>
 <h2>12. Änderungen</h2>
 <p>Diese Datenschutzerklärung kann bei Bedarf aktualisiert werden.</p>
 <p><strong>Stand:</strong> Dezember 2024</p>
-' WHERE id = 1;
+' WHERE id = 'default';
 
--- Prüfe ob Update erfolgreich war
-SELECT 'Datenschutzerklärung aktualisiert' AS status, 
-       LENGTH(privacy) AS zeichen 
-FROM site_settings 
-WHERE id = 1;
+-- Prüfe ob Updates erfolgreich waren
+SELECT
+  'Updates erfolgreich' AS status,
+  LENGTH(imprint) AS impressum_zeichen,
+  LENGTH(privacy) AS datenschutz_zeichen
+FROM site_settings
+WHERE id = 'default';
 
