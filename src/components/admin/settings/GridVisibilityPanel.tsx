@@ -26,12 +26,12 @@ type GridSection = {
 }
 
 const GRID_SECTIONS: GridSection[] = [
-  { key: 'show_hero', sortKey: 'hero_sort_order', label: 'Hero-Bereich', description: 'Großer Banner oben mit Titel und CTA' },
-  { key: 'show_features', sortKey: 'features_sort_order', label: 'Features/Services', description: 'Übersicht der angebotenen Dienstleistungen' },
-  { key: 'show_gallery', sortKey: 'gallery_sort_order', label: 'Galerie', description: 'Portfolio-Galerie mit Screenshots' },
-  { key: 'show_services', sortKey: 'services_sort_order', label: 'Services-Details', description: 'Detaillierte Service-Beschreibungen' },
-  { key: 'show_portfolio', sortKey: 'portfolio_sort_order', label: 'Portfolio', description: 'Projekt-Showcase' },
-  { key: 'show_shootinghub', sortKey: 'shootinghub_sort_order', label: 'ShootingHub', description: 'App-Promo Bereich' },
+  { key: 'show_hero', sortKey: 'hero_sort_order', label: 'Hero-Bereich', description: 'Großer Banner oben mit Titel und CTA-Buttons' },
+  { key: 'show_features', sortKey: 'features_sort_order', label: 'Services-Kacheln', description: 'Dienstleistungen in Kachelansicht (ArcaneFeatures)' },
+  { key: 'show_services', sortKey: 'services_sort_order', label: 'Services (Erweitert)', description: 'Hinweis: Wirkt zusammen mit Features/Services-Kacheln' },
+  { key: 'show_gallery', sortKey: 'gallery_sort_order', label: 'Galerie', description: 'Screenshots und Bildergalerie' },
+  { key: 'show_portfolio', sortKey: 'portfolio_sort_order', label: 'Portfolio', description: 'Projekt-Showcase mit Details' },
+  { key: 'show_shootinghub', sortKey: 'shootinghub_sort_order', label: 'ShootingHub Promo', description: 'App-Promo Banner mit Bild und Features' },
 ]
 
 type FeedbackState = { variant: 'success' | 'error'; message: string }

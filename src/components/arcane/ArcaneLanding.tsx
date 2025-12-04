@@ -56,19 +56,50 @@ export async function ArcaneLanding() {
 
   // Grid-Sichtbarkeit aus Einstellungen (Standard: alle sichtbar)
   const showHero = settings.show_hero ?? true
-  const showFeatures = settings.show_features ?? true
+  const showFeatures = settings.show_features ?? true  // Features = Services-Bereich
   const showGallery = settings.show_gallery ?? true
+  const showServices = settings.show_services ?? true  // Alias für Features (Rückwärtskompatibilität)
+  const showPortfolio = settings.show_portfolio ?? true
+  const showShootinghub = settings.show_shootinghub ?? true
 
   // Sortierreihenfolge aus Einstellungen
   const heroOrder = settings.hero_sort_order ?? 1
-  const featuresOrder = settings.features_sort_order ?? 2
+  const featuresOrder = settings.features_sort_order ?? 2  // Features = Services
   const galleryOrder = settings.gallery_sort_order ?? 3
+  const servicesOrder = settings.services_sort_order ?? 2  // Alias für Features
+  const portfolioOrder = settings.portfolio_sort_order ?? 4
+  const shootinghubOrder = settings.shootinghub_sort_order ?? 5
+
+  // Berechne kombinierte Sichtbarkeit für ArcaneGallery
+  // ArcaneGallery enthält: Gallery, Portfolio und ShootingHub
+  const galleryComponentVisible = showGallery || showPortfolio || showShootinghub
+
+  // Berechne Sortierreihenfolge für ArcaneGallery (niedrigste der drei)
+  const galleryComponentOrder = Math.min(
+    showGallery ? galleryOrder : Infinity,
+    showPortfolio ? portfolioOrder : Infinity,
+    showShootinghub ? shootinghubOrder : Infinity
+  )
 
   // Erstelle sortierbare Bereiche
+  // Hinweis: Features und Services sind dasselbe - wir nutzen beide Flags für Kompatibilität
+  const effectiveShowServices = showFeatures && showServices
+  const effectiveServicesOrder = Math.min(featuresOrder, servicesOrder)
+
   const staticSections: SectionConfig[] = [
     { key: 'hero', sortOrder: heroOrder, visible: showHero, component: <ArcaneHero key="hero" /> },
-    { key: 'features', sortOrder: featuresOrder, visible: showFeatures, component: <ArcaneFeatures key="features" /> },
-    { key: 'gallery', sortOrder: galleryOrder, visible: showGallery, component: <ArcaneGallery key="gallery" /> },
+    { key: 'services', sortOrder: effectiveServicesOrder, visible: effectiveShowServices, component: <ArcaneFeatures key="services" /> },
+    {
+      key: 'gallery',
+      sortOrder: galleryComponentOrder,
+      visible: galleryComponentVisible,
+      component: <ArcaneGallery
+        key="gallery"
+        showGallery={showGallery}
+        showPortfolio={showPortfolio}
+        showShootinghub={showShootinghub}
+      />
+    },
   ]
 
   // Filtere sichtbare Bereiche und sortiere nach Reihenfolge

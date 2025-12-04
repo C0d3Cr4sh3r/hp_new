@@ -17,7 +17,21 @@ const categories = [
 // Combined type for gallery items
 type GalleryItem = (Screenshot & { source: 'screenshot' }) | (Portfolio & { source: 'portfolio' })
 
-export default function ArcaneGallery() {
+interface ArcaneGalleryProps {
+  showGallery?: boolean
+  showPortfolio?: boolean
+  showShootinghub?: boolean
+}
+
+export default function ArcaneGallery({
+  showGallery = true,
+  showPortfolio = true,
+  showShootinghub = true
+}: ArcaneGalleryProps) {
+  // Wenn alle Bereiche ausgeblendet, nichts rendern
+  if (!showGallery && !showPortfolio && !showShootinghub) {
+    return null
+  }
   const [activeCategory, setActiveCategory] = useState('all')
   const [selectedImage, setSelectedImage] = useState<number | null>(null)
   const [screenshots, setScreenshots] = useState<Screenshot[]>([])
@@ -110,16 +124,18 @@ export default function ArcaneGallery() {
       }
     }
 
-    loadSection()
-    loadScreenshots()
-    loadPortfolios()
+    // Nur laden was auch angezeigt wird
+    if (showShootinghub) loadSection()
+    if (showGallery) loadScreenshots()
+    if (showPortfolio) loadPortfolios()
     return () => controller.abort()
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showGallery, showPortfolio, showShootinghub])
 
-  // Combine screenshots and portfolios into gallery items
+  // Combine screenshots and portfolios into gallery items (nur wenn sichtbar)
   const allItems: GalleryItem[] = [
-    ...screenshots.map(s => ({ ...s, source: 'screenshot' as const })),
-    ...portfolios.map(p => ({ ...p, source: 'portfolio' as const }))
+    ...(showGallery ? screenshots.map(s => ({ ...s, source: 'screenshot' as const })) : []),
+    ...(showPortfolio ? portfolios.map(p => ({ ...p, source: 'portfolio' as const })) : [])
   ]
 
   // Filter based on selected category
@@ -127,55 +143,63 @@ export default function ArcaneGallery() {
     if (activeCategory === 'all') {
       return allItems
     }
-    if (activeCategory === 'app') {
+    if (activeCategory === 'app' && showGallery) {
       return screenshots.filter(s => s.category === 'app').map(s => ({ ...s, source: 'screenshot' as const }))
     }
-    if (activeCategory === 'portfolio') {
+    if (activeCategory === 'portfolio' && showPortfolio) {
       return portfolios.map(p => ({ ...p, source: 'portfolio' as const }))
     }
     // For specific portfolio categories
-    if (['photography', 'websites', 'apps', 'marketing'].includes(activeCategory)) {
+    if (['photography', 'websites', 'apps', 'marketing'].includes(activeCategory) && showPortfolio) {
       return portfolios.filter(p => p.category === activeCategory).map(p => ({ ...p, source: 'portfolio' as const }))
     }
     return allItems.filter(item => item.category === activeCategory)
   })()
 
-  const isLoading = isLoadingScreenshots || isLoadingPortfolios
+  const isLoading = (showGallery && isLoadingScreenshots) || (showPortfolio && isLoadingPortfolios)
+
+  // Wenn nur ShootingHub sichtbar ist, kein Gallery-Grid anzeigen
+  const showGallerySection = showGallery || showPortfolio
 
   return (
     <section id="portfolio" className="py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-base font-semibold leading-7 text-purple-400">Galerie</h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
-            Screenshots & Portfolio
-          </p>
-          <p className="mt-6 text-lg leading-8 text-purple-200">
-            Entdecke ShootingHub Features und unsere Web-Entwicklungsprojekte für Fotografen
-          </p>
-        </div>
+        {/* Header - nur wenn Gallery oder Portfolio sichtbar */}
+        {showGallerySection && (
+          <>
+            <div className="mx-auto max-w-2xl text-center">
+              <h2 className="text-base font-semibold leading-7 text-purple-400">Galerie</h2>
+              <p className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                Screenshots & Portfolio
+              </p>
+              <p className="mt-6 text-lg leading-8 text-purple-200">
+                Entdecke ShootingHub Features und unsere Web-Entwicklungsprojekte für Fotografen
+              </p>
+            </div>
 
-        {/* Category Filter */}
-        <div className="mt-16 flex justify-center">
-          <div className="flex flex-wrap gap-2 rounded-lg bg-black/40 p-2">
-            {categories.map((category) => (
-              <button
-                key={category.id}
-                onClick={() => setActiveCategory(category.id)}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                  activeCategory === category.id
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'text-purple-300 hover:text-white hover:bg-purple-600/50'
-                }`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* Category Filter */}
+            <div className="mt-16 flex justify-center">
+              <div className="flex flex-wrap gap-2 rounded-lg bg-black/40 p-2">
+                {categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => setActiveCategory(category.id)}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                      activeCategory === category.id
+                        ? 'bg-purple-600 text-white shadow-lg'
+                        : 'text-purple-300 hover:text-white hover:bg-purple-600/50'
+                    }`}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        )}
 
-        {/* Gallery Grid */}
-        {isLoading ? (
+        {/* Gallery Grid - nur wenn Gallery oder Portfolio sichtbar */}
+        {showGallerySection && (isLoading ? (
           <div className="mt-16 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {[...Array(6)].map((_, index) => (
               <div key={index} className="animate-pulse">
@@ -236,16 +260,17 @@ export default function ArcaneGallery() {
               </div>
             ))}
           </div>
-        )}
-        
-        {!isLoading && filteredItems.length === 0 && (
+        ))}
+
+        {showGallerySection && !isLoading && filteredItems.length === 0 && (
           <div className="mt-16 text-center">
             <p className="text-purple-300">Keine Einträge in dieser Kategorie gefunden.</p>
           </div>
         )}
 
-        {/* ShootingHub Section */}
-        <div id="shootinghub" className="mt-32 rounded-2xl bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-8 lg:p-12">
+        {/* ShootingHub Section - nur wenn sichtbar */}
+        {showShootinghub && (
+          <div id="shootinghub" className={`${showGallerySection ? 'mt-32' : ''} rounded-2xl bg-gradient-to-r from-purple-900/40 to-pink-900/40 p-8 lg:p-12`}>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="text-3xl font-bold text-white mb-6">
@@ -300,11 +325,12 @@ export default function ArcaneGallery() {
             </div>
           </div>
         </div>
+        )}
       </div>
 
-      {/* Lightbox Modal */}
-      {selectedImage && (
-        <div 
+      {/* Lightbox Modal - nur wenn Gallery oder Portfolio sichtbar */}
+      {showGallerySection && selectedImage && (
+        <div
           className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
@@ -335,9 +361,9 @@ export default function ArcaneGallery() {
                       <p className="mt-1 text-sm text-pink-300">Kunde: {selectedItem.client_name}</p>
                     )}
                     {selectedItem.source === 'portfolio' && 'project_url' in selectedItem && selectedItem.project_url && (
-                      <a 
-                        href={selectedItem.project_url} 
-                        target="_blank" 
+                      <a
+                        href={selectedItem.project_url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="mt-2 inline-flex items-center text-sm text-purple-400 hover:text-purple-200"
                       >
@@ -353,7 +379,7 @@ export default function ArcaneGallery() {
               )
             })()}
           </div>
-          <button 
+          <button
             className="absolute top-4 right-4 text-white text-2xl hover:text-purple-300"
             onClick={() => setSelectedImage(null)}
           >
