@@ -8,15 +8,23 @@ import ArcaneGallery from "@/components/arcane/ArcaneGallery";
 import ArcaneFooter from "@/components/arcane/ArcaneFooter";
 import { SectionRenderer } from "@/components/arcane/sections";
 import type { LandingSection } from '@/app/api/landing-sections/route';
+import { getSupabaseAdminClient } from '@/lib/supabaseAdmin';
 
 async function getLandingSections(): Promise<LandingSection[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-    const res = await fetch(`${baseUrl}/api/landing-sections`, {
-      next: { revalidate: 60 }, // Cache for 60 seconds
-    })
-    if (!res.ok) return []
-    return res.json()
+    // Direkt Supabase aufrufen statt fetch (vermeidet localhost-Problem auf Vercel)
+    const supabase = getSupabaseAdminClient()
+    const { data, error } = await supabase
+      .from('landing_sections')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+
+    if (error) {
+      console.error('Failed to load landing sections:', error)
+      return []
+    }
+    return data || []
   } catch (error) {
     console.error('Failed to load landing sections:', error)
     return []
