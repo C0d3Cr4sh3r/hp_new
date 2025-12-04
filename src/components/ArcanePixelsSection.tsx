@@ -1,8 +1,7 @@
 'use client';
 
-import { 
+import {
   CameraIcon,
-  CalendarDaysIcon,
   PhotoIcon,
   NewspaperIcon,
   BugAntIcon,
@@ -25,13 +24,6 @@ const arcaneFeatures: ArcaneFeature[] = [
     description: 'Professionelle Galerie mit Lightbox-Funktion und kategorisierten Sammlungen.',
     href: '/#screenshots',
     color: 'from-purple-500 to-pink-500',
-  },
-  {
-    icon: CalendarDaysIcon,
-    title: 'Event Management',
-    description: 'TFP-Shootings organisieren, verwalten und mit Models koordinieren.',
-    href: '/arcane/events',
-    color: 'from-pink-500 to-rose-500',
   },
   {
     icon: PhotoIcon,
